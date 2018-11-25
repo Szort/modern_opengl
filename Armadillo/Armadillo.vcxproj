@@ -161,13 +161,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Armadillo.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="GL\glew.c" />
     <ClCompile Include="ViewRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Armadillo.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="GL\glew.h" />
+    <ClInclude Include="Utilietes.h" />
     <ClInclude Include="ViewRender.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GLSL\basic.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

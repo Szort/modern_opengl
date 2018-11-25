@@ -18,6 +18,9 @@ GLFWwindow* ViewRender::Init(int view_x, int view_y)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+
+	shader_basic->ShaderParser("basic.glsl");
+
 	return window;
 }
 

@@ -1,14 +1,14 @@
-#vertexshader
+#shader vertex
 #version 450
 
-layout(location = 1) vec4 position
+layout(location = 1) vec4 position;
 
 void main()
 {
 	gl_Position = position;
 }
 
-#fragmentshader
+#shader fragment
 #version 450
 
 void main()

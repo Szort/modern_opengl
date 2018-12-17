@@ -16,5 +16,6 @@ public:
 	void Render();
 	void Destroy();
 
+protected:
 	Shader* shader_basic;
 };

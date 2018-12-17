@@ -19,7 +19,12 @@ GLFWwindow* ViewRender::Init(int view_x, int view_y)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
-	shader_basic->ShaderParser("basic.glsl");
+	/* Initialize GLEW */
+	if (glewInit() != GLEW_OK)
+		std::cout << "Error!" << std::endl;
+
+	shader_basic = new Shader();
+	shader_basic->ShaderCompile("basic.glsl");
 
 	return window;
 }

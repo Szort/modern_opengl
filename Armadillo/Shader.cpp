@@ -4,8 +4,7 @@
 ShadersStringData* Shader::ShaderParser(std::string file_name)
 {
 	ShadersStringData* shader_strings = new ShadersStringData();
-	std::string file_path = std::string("GLSL/" + file_name);
-	std::ifstream file_data(file_path);
+	std::ifstream file_data(std::string("GLSL/" + file_name));
 	std::string line_data;
 	std::stringstream parsed_string[3];
 	ShaderType parsing_type = NO_SHADER;
@@ -39,13 +38,17 @@ ShadersStringData* Shader::ShaderParser(std::string file_name)
 // Compile shader string to glProgram
 void Shader::ShaderCompile(std::string file_name)
 {
+	std::cout << "Compiling " << file_name << " shader..." << std::endl;
+
+	// Compile individual chanks of shader program
 	ShadersStringData* shader_parsed;
 	shader_parsed = ShaderParser(file_name);
+	std::vector<unsigned int> shader_id;
+	shader_id.resize((int)NO_SHADER - 1);
 
-	std::vector<unsigned int> shader_id = std::vector<unsigned int>{0, 0, 0};
-
-	for (int shader_type = VERTEX_SHADER; shader_type <= FRAGMENT_SHADER; shader_type++)
+	for (int shader_type = VERTEX_SHADER; shader_type < NO_SHADER; shader_type++)
 	{
+		shader_id[shader_type] = 0;
 		const char* shader_source;
 
 		switch (shader_type)
@@ -75,29 +78,60 @@ void Shader::ShaderCompile(std::string file_name)
 		glShaderSource(shader_id[shader_type], 1, &shader_source, NULL);
 		glCompileShader(shader_id[shader_type]);
 
-		int vertex_compiled;
-		glGetShaderiv(shader_id[shader_type], GL_COMPILE_STATUS, &vertex_compiled);
-		if (vertex_compiled == GL_FALSE)
+		int compilation_info;
+		glGetShaderiv(shader_id[shader_type], GL_COMPILE_STATUS, &compilation_info);
+		if (compilation_info == GL_FALSE)
 		{
 			int lenght;
 			glGetShaderiv(shader_id[shader_type], GL_INFO_LOG_LENGTH, &lenght);
 			char* message = (char*)alloca(lenght * sizeof(char));
 			glGetShaderInfoLog(shader_id[shader_type], lenght, &lenght, message);
-			std::cout << "Failed to compile ";
-			if (shader_type == VERTEX_SHADER)
-				std::cout << "vertex";
-			else if (shader_type == GEOMETRY_SHADER)
-				std::cout << "geometry";
-			else if (shader_type == FRAGMENT_SHADER)
-				std::cout << "fragment";
-
-			std::cout << " shader!" << std::endl;
 			std::cout << message << std::endl;
-			// Write the error to a log
+			std::cout << "Failed to compile ";
 		}
 		else
 		{
-			std::cout << "Shader compiled! \n";
+			std::cout << "Compiled ";
 		}
+
+		if (shader_type == VERTEX_SHADER)
+			std::cout << "vertex";
+		else if (shader_type == GEOMETRY_SHADER)
+			std::cout << "geometry";
+		else if (shader_type == FRAGMENT_SHADER)
+			std::cout << "fragment";
+
+		std::cout << " shader! " << "ID: " << shader_id[shader_type] << std::endl;
 	}
+
+	// Assemble whole shader program
+	program_id = glCreateProgram();
+	for (int shader_type = 0; shader_type < NO_SHADER; shader_type++)
+	{
+		if (shader_id[shader_type] != 0)
+			glAttachShader(program_id, shader_id[shader_type]);
+	}
+
+	// Link shader program
+	glLinkProgram(program_id);
+
+	// We should delete individual shaders
+	for (int shader_type = 0; shader_type < NO_SHADER; shader_type++)
+	{
+		if (shader_id[shader_type] != 0)
+			glDeleteShader(shader_id[shader_type]);
+	}
+
+	// Show program id
+	std::cout << "Program ID: " << program_id << std::endl;
+}
+
+void Shader::BindShader()
+{
+	glUseProgram(program_id);
+}
+
+void Shader::UnbindShader()
+{
+	glUseProgram(0);
 }

@@ -10,10 +10,10 @@
 
 enum ShaderType
 {
-	NO_SHADER = -1,
-	VERTEX_SHADER = 0,
+	VERTEX_SHADER,
 	GEOMETRY_SHADER,
-	FRAGMENT_SHADER
+	FRAGMENT_SHADER,
+	NO_SHADER
 };
 
 struct ShadersStringData
@@ -38,8 +38,8 @@ public:
 
 	ShadersStringData* ShaderParser(std::string file_name);
 	void ShaderCompile(std::string file_name);
+	void BindShader();
+	void UnbindShader();
 
-	unsigned int vertex_id;
-	unsigned int geometry_id;
-	unsigned int fragment_id;
+	unsigned int program_id;
 };

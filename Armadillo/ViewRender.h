@@ -18,4 +18,5 @@ public:
 
 protected:
 	Shader* shader_basic;
+	GLFWwindow* viewport_window;
 };

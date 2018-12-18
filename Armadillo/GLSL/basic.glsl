@@ -1,7 +1,7 @@
 #shader vertex
 #version 450
 
-layout(location = 1) vec4 position;
+layout(location = 0) in vec4 position;
 
 void main()
 {
@@ -13,6 +13,6 @@ void main()
 
 void main()
 {
-	vec4 out_color = vec4(0.8, 0.2, 0.0, 1.0);
+	vec4 out_color = vec4(0.8, 0.0, 0.0, 1.0);
 	gl_FragColor = out_color;
 }

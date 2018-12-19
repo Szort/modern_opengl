@@ -161,16 +161,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Armadillo.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="GL\glew.c" />
-    <ClCompile Include="ViewRender.cpp" />
+    <ClCompile Include="Render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Armadillo.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="GL\glew.h" />
     <ClInclude Include="Utilietes.h" />
-    <ClInclude Include="ViewRender.h" />
+    <ClInclude Include="Render.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GLSL\basic.glsl" />

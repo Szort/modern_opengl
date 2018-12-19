@@ -55,19 +55,19 @@ void Shader::ShaderCompile(std::string file_name)
 		{
 		case VERTEX_SHADER:
 			shader_source = shader_parsed->vertex_string.c_str();
-			if (*shader_source == '\0')
+			if (shader_parsed->vertex_string.empty())
 				continue;
 			shader_id[shader_type] = glCreateShader(GL_VERTEX_SHADER);
 			break;
 		case GEOMETRY_SHADER:
 			shader_source = shader_parsed->geometry_string.c_str();
-			if (*shader_source == '\0')
+			if (shader_parsed->geometry_string.empty())
 				continue;
 			shader_id[shader_type] = glCreateShader(GL_GEOMETRY_SHADER);
 			break;
 		case FRAGMENT_SHADER:
 			shader_source = shader_parsed->fragment_string.c_str();
-			if (*shader_source == '\0')
+			if (shader_parsed->fragment_string.empty())
 				continue;
 			shader_id[shader_type] = glCreateShader(GL_FRAGMENT_SHADER);
 			break;

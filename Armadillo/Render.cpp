@@ -45,30 +45,29 @@ void ViewRender::Render()
 	glEnable(GL_DEPTH_TEST); // Enable depth-testing
 	glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
 
-	// Loop until the user closes the window
-	while (!glfwWindowShouldClose(viewport_window))
-	{
-		//Clear buffer before rendering
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//Clear buffer before rendering
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Bind resources
-		shader_basic->BindShader();
-		geometry_basic->BindGeometry();
+	// Bind resources
+	shader_basic->BindShader();
+	geometry_basic->BindGeometry();
 
-		// Draw binded geometry and shader when in use
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+	// Draw binded geometry and shader when in use
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		// Swap front and back buffers 
-		glfwSwapBuffers(viewport_window);
+	// Swap front and back buffers 
+	glfwSwapBuffers(viewport_window);
 	
-		// Poll for and process events
-		glfwPollEvents();
-	}
-
-	Destroy();
+	// Poll for and process events
+	glfwPollEvents();
 }
 
 void ViewRender::Destroy()
 {
 	glfwTerminate();
+}
+
+GLFWwindow* ViewRender::GetViewportHandle()
+{
+	return viewport_window;
 }

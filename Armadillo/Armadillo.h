@@ -5,3 +5,4 @@
 #include <GLFW/glfw3.h>
 
 #include "Render.h"
+#include "Diagnostics.h"

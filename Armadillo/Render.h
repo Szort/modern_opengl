@@ -6,6 +6,7 @@
 
 #include "Shader.h"
 #include "Geometry.h"
+#include "Diagnostics.h"
 
 class ViewRender
 {
@@ -18,6 +19,7 @@ public:
 	void PrepResources();
 	void Render();
 	void Destroy();
+	GLFWwindow* GetViewportHandle();
 
 protected:
 	GLFWwindow* viewport_window;

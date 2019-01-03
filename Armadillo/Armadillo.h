@@ -6,3 +6,9 @@
 
 #include "Render.h"
 #include "Diagnostics.h"
+
+class Armadillo
+{
+public:
+	void ViewDiagnosticGraph();
+};

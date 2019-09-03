@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GLM/glm.hpp>
 #include "GL/glew.h"
@@ -6,9 +6,13 @@
 
 #include "Render.h"
 #include "Diagnostics.h"
+#include "AELight.h"
 
 class Armadillo
 {
 public:
+	Armadillo() {};
+	~Armadillo() {};
+
 	void ViewDiagnosticGraph();
 };

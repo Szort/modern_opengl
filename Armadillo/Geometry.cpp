@@ -1,10 +1,13 @@
 #include "Geometry.h"
+#include "AEPrimitive.h"
 
 bool Geometry::Init()
 {
+	AEPrimitive plane(eAE_PrimitiveType_Plane);
+
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), points, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), plane.GetVertexes(), GL_STATIC_DRAW);
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);

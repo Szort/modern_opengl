@@ -171,9 +171,13 @@
     <ClCompile Include="Render.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AECamera.h" />
+    <ClInclude Include="AEObject.h" />
+    <ClInclude Include="AEPrimitive.h" />
     <ClInclude Include="Armadillo.h" />
     <ClInclude Include="Diagnostics.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="AELight.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="GL\glew.h" />
     <ClInclude Include="Utilietes.h" />

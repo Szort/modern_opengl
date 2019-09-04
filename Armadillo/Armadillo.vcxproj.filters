@@ -65,8 +65,24 @@
     <ClInclude Include="AEPrimitive.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GLSL\basic.glsl" />
+    <None Include="Objects\Triangle.gltf" />
+    <None Include="Objects\TriangleWithoutIndices.gltf" />
+    <None Include="Objects\simpleTriangle.bin">
+      <Filter>Pliki zasobów</Filter>
+    </None>
+    <None Include="Objects\triangleWithoutIndices.bin">
+      <Filter>Pliki zasobów</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Armadillo.rc">
+      <Filter>Pliki zasobów</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

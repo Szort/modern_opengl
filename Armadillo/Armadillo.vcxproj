@@ -75,18 +75,20 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\User\Documents\My_Projects\Armadillo\api\glm\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glew\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\User\Documents\My_Projects\Armadillo\api\glm\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glew\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\include;C:\Program Files\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\lib;C:\Program Files\Assimp\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\User\Documents\My_Projects\Armadillo\api\glm\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glew\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\User\Documents\My_Projects\Armadillo\api\glm\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glew\include;C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\include;C:\Program Files\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\User\Documents\My_Projects\Armadillo\api\glfw\lib;C:\Program Files\Assimp\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -118,7 +120,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc141-mt.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Qt\5.12.0\msvc2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -159,7 +161,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc141-mt.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Qt\5.12.0\msvc2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -178,6 +180,7 @@
     <ClInclude Include="Diagnostics.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="AELight.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="GL\glew.h" />
     <ClInclude Include="Utilietes.h" />
@@ -185,6 +188,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GLSL\basic.glsl" />
+    <None Include="Objects\simpleTriangle.bin" />
+    <None Include="Objects\Triangle.gltf" />
+    <None Include="Objects\triangleWithoutIndices.bin" />
+    <None Include="Objects\TriangleWithoutIndices.gltf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Armadillo.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

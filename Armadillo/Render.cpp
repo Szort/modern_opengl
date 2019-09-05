@@ -19,6 +19,10 @@ bool ViewRender::Init(int view_x, int view_y)
 	if (!glfwInit())
 		return false;
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+
 	// Create a windowed mode window and its OpenGL context
 	viewport_window = glfwCreateWindow(view_x, view_y, "Armadillo Viewport", NULL, NULL);
 	if (!viewport_window)

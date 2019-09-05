@@ -21,7 +21,6 @@ public:
 	void Destroy();
 	GLFWwindow* GetViewportHandle();
 
-protected:
 	GLFWwindow* viewport_window;
 	Shader* shader_basic;
 	Geometry* geometry_basic;

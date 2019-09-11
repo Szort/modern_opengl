@@ -166,8 +166,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Armadillo.cpp" />
-    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="AEGui.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="AEGeometry.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -176,15 +177,16 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="GL\glew.c" />
-    <ClCompile Include="Render.cpp" />
+    <ClCompile Include="AEViewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AECamera.h" />
+    <ClInclude Include="AEEngine.h" />
+    <ClInclude Include="AEGui.h" />
     <ClInclude Include="AEObject.h" />
     <ClInclude Include="AEPrimitive.h" />
-    <ClInclude Include="Armadillo.h" />
-    <ClInclude Include="Diagnostics.h" />
-    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="AEDiagnostics.h" />
+    <ClInclude Include="AEGeometry.h" />
     <ClInclude Include="AELight.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -197,18 +199,16 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="GL\glew.h" />
-    <ClInclude Include="Utilietes.h" />
-    <ClInclude Include="Render.h" />
+    <ClInclude Include="AEViewport.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GLSL\basic.glsl" />
+    <None Include="imgui.ini" />
+    <None Include="Objects\BoxVertexColors.gltf" />
     <None Include="Objects\simpleTriangle.bin" />
     <None Include="Objects\Triangle.gltf" />
     <None Include="Objects\triangleWithoutIndices.bin" />
     <None Include="Objects\TriangleWithoutIndices.gltf" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Armadillo.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

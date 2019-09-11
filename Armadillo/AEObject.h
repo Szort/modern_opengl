@@ -1,6 +1,10 @@
 #pragma once
 
+#include "GL/glew.h"
+#include <GLFW/glfw3.h>
+
 #include <GLM/glm.hpp>
+#include <GLM/gtc/matrix_transform.hpp>
 #include <string>
 
 // Type of object list
@@ -17,15 +21,16 @@ enum AEObjectType
 // Base hierarhical object
 class AEObject
 {
-	glm::vec3 Position;
-	std::string Name;
 	AEObjectType ObjectType;
 
 public:
-	glm::vec3 GetPosition() { return Position; };
-	void SetPosition(glm::vec3 &position) { Position = position; };
-	std::string GetName() { return Name; };
-	void SetName(const char* name) { Name = name; };
+	glm::vec3 Position;
+	std::string Name;
+	bool Selected;
+	bool Visible;
+
+	AEObject() {};
+	~AEObject() {};
 	AEObjectType GetObjType() { return ObjectType; };
 
 protected:

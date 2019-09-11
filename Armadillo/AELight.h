@@ -31,7 +31,7 @@ public:
 	{};
 	~AELight() {};
 
-	AELight(glm::vec3 &position) { SetPosition(position); };
+	AELight(glm::vec3 &position) { Position = position; };
 	AELight(float &intensity) { Intensity = intensity; };
 
 	glm::vec3 GetColor() { return Color; };

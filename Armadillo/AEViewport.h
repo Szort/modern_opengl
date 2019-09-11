@@ -5,23 +5,22 @@
 #include <GLFW/glfw3.h>
 
 #include "Shader.h"
-#include "Geometry.h"
-#include "Diagnostics.h"
+#include "AEGeometry.h"
 
-class ViewRender
+class AEViewport
 {
+	GLFWwindow* window;
 
 public:
-	ViewRender() {};
-	~ViewRender() {};
+	AEViewport() {};
+	~AEViewport() {};
 
 	bool Init(int view_x, int view_y);
 	void PrepResources();
 	void Render();
 	void Destroy();
-	GLFWwindow* GetViewportHandle();
+	GLFWwindow* GetWindow();
 
-	GLFWwindow* viewport_window;
 	Shader* shader_basic;
-	Geometry* geometry_basic;
+	AEGeometry* geometry_basic;
 };

@@ -48,17 +48,17 @@ public:
 		switch (prim_type)
 		{
 		case eAE_PrimitiveType_Plane:
-			SetName("Plane");
+			Name = "Plane";
 			Vertexes = (float*)AEPlane_Vertex;
 			Indices = (int*)AEPlane_Indices;
 			break;
 		case eAE_PrimitiveType_Cube:
-			SetName("Cube");
+			Name = "Cube";
 			Vertexes = (float*)AECube_Vertex;
 			Indices = (int*)AECube_Indices;
 			break;
 		default:
-			SetName("NullObject");
+			Name = "NullObject";
 			Vertexes = nullptr;
 			Indices = nullptr;
 			break;
@@ -68,4 +68,17 @@ public:
 
 	float* GetVertexes() { return Vertexes; };
 	int* GetIndices() { return Indices; };
+
+private:
+	void ComputeGrid(unsigned int grid_size)
+	{
+		float* grid_vert = new float[grid_size * grid_size];
+		for (uint16_t y = 0; y < grid_size; y++)
+		{
+			for (uint16_t x = 0; x < grid_size; x++)
+			{
+
+			}
+		}
+	}
 };

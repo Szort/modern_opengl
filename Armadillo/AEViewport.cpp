@@ -1,38 +1,37 @@
-#include "Render.h"
+#include "AEViewport.h"
 
 // Prepare all resources for rendering
-void ViewRender::PrepResources()
+void AEViewport::PrepResources()
 {
 	// Compile shader
 	shader_basic = new Shader();
 	shader_basic->ShaderCompile("basic.glsl");
 
 	// Geometry buffer VBO and VAO
-	geometry_basic = new Geometry();
-	geometry_basic->Init();
+	geometry_basic = new AEGeometry();
 }
 
 // Init renderer window
-bool ViewRender::Init(int view_x, int view_y)
+bool AEViewport::Init(int view_x, int view_y)
 {
 	// Initialize the library
 	if (!glfwInit())
 		return false;
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
 
 	// Create a windowed mode window and its OpenGL context
-	viewport_window = glfwCreateWindow(view_x, view_y, "Armadillo Viewport", NULL, NULL);
-	if (!viewport_window)
+	window = glfwCreateWindow(view_x, view_y, "Armadillo Viewport", NULL, NULL);
+	if (!window)
 	{
 		glfwTerminate();
 		return false;
 	}
 
 	// Make the window's context current
-	glfwMakeContextCurrent(viewport_window);
+	glfwMakeContextCurrent(window);
 
 	// Initialize GLEW
 	if (glewInit() != GLEW_OK)
@@ -44,7 +43,7 @@ bool ViewRender::Init(int view_x, int view_y)
 	return true;
 }
 
-void ViewRender::Render()
+void AEViewport::Render()
 {
 	glEnable(GL_DEPTH_TEST); // Enable depth-testing
 	glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
@@ -60,18 +59,18 @@ void ViewRender::Render()
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	// Swap front and back buffers 
-	glfwSwapBuffers(viewport_window);
+	glfwSwapBuffers(window);
 	
 	// Poll for and process events
 	glfwPollEvents();
 }
 
-void ViewRender::Destroy()
+void AEViewport::Destroy()
 {
 	glfwTerminate();
 }
 
-GLFWwindow* ViewRender::GetViewportHandle()
+GLFWwindow* AEViewport::GetWindow()
 {
-	return viewport_window;
+	return window;
 }

@@ -44,7 +44,7 @@ void Shader::ShaderCompile(std::string file_name)
 	ShadersStringData* shader_parsed;
 	shader_parsed = ShaderParser(file_name);
 	std::vector<unsigned int> shader_id;
-	shader_id.resize((int)NO_SHADER - 1);
+	shader_id.resize((int)NO_SHADER);
 
 	for (int shader_type = VERTEX_SHADER; shader_type < NO_SHADER; shader_type++)
 	{

@@ -75,7 +75,9 @@ int main()
 		glUniformMatrix4fv(m_location_id, 1, GL_FALSE, &Viewport.geometry_basic->GetModelMatrix()[0][0]);
 
 		// Draw binded geometry and shader when in use
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (void*)0, 2, 0);
+
 		glBindVertexArray(0);
 
 		GUI->Draw(Viewport);

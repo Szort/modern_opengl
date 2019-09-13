@@ -5,6 +5,15 @@
 
 #include "AEObject.h"
 
+struct AEDrawElementsCommand
+{
+	unsigned int vertexCount;
+	unsigned int instanceCount;
+	unsigned int firstIndex;
+	unsigned int baseVertex;
+	unsigned int baseInstance;
+};
+
 class AEGeometry : public AEObject
 {
 	glm::mat4 ModelMatrix;
@@ -26,4 +35,6 @@ public:
 	unsigned int vbo;
 	unsigned int vao;
 	unsigned int ibo;
+	unsigned int iid;
+	unsigned int indirectDrawBuffer;
 };

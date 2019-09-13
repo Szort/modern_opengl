@@ -94,11 +94,15 @@ bool AEGeometry::Init()
 		faces++;
 	}
 
+	int label_max_lenght;
+	glGetIntegerv(GL_MAX_LABEL_LENGTH, &label_max_lenght);
+
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
 
 	glBindVertexArray(vao);
+	glObjectLabel(GL_BUFFER, vao, 20, "Vertex Array Buffer");
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride_size, 0);
@@ -107,9 +111,41 @@ bool AEGeometry::Init()
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, triangle->mNumVertices * stride_size, packed_vertices, GL_STATIC_DRAW);
-	
+	glObjectLabel(GL_BUFFER, vbo, 14, "Vertex Buffer");
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof(unsigned int), indices_list, GL_STATIC_DRAW);
+	glObjectLabel(GL_BUFFER, ibo, 15, "Indices Buffer");
+
+	AEDrawElementsCommand vDrawCommand[2];
+	for (unsigned int i(0); i < 2; ++i)
+	{
+		vDrawCommand[i].vertexCount = 36;
+		vDrawCommand[i].instanceCount = 1;
+		vDrawCommand[i].firstIndex = 0;
+		vDrawCommand[i].baseVertex = 0;
+		vDrawCommand[i].baseInstance = i;
+	}
+
+	glGenBuffers(1, &indirectDrawBuffer);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawBuffer);
+	glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(vDrawCommand), vDrawCommand, GL_STATIC_DRAW);
+	glObjectLabel(GL_BUFFER, indirectDrawBuffer, 21, "Indirect Draw Buffer");
+
+	unsigned int vDrawId[2];
+	for (unsigned int i(0); i < 2; i++)
+	{
+		vDrawId[i] = i;
+	}
+
+	glGenBuffers(1, &iid);
+	glBindBuffer(GL_ARRAY_BUFFER, iid);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vDrawId), vDrawId, GL_STATIC_DRAW);
+	glObjectLabel(GL_BUFFER, iid, 15, "Draw ID Buffer");
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, 0, (void*)0);
+	glVertexAttribDivisor(2, 1);
 
 	if (vbo != 0 && vao != 0 && ibo != 0)
 		return true;

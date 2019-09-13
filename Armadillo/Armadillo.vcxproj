@@ -116,6 +116,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Qt\5.12.0\msvc2017_64\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>if not exist "$(TargetDir)resources" mkdir "$(TargetDir)resources" if not exist "$(TargetDir)resources\shaders" mkdir "$(TargetDir)resources\shaders"
+xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\shaders" "$(TargetDir)\resources\shaders" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,9 +166,17 @@
       <AdditionalDependencies>assimp-vc141-mt.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Qt\5.12.0\msvc2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(TargetDir)resources" mkdir "$(TargetDir)resources" 
+if not exist "$(TargetDir)resources\shaders" mkdir "$(TargetDir)resources\shaders"
+xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\shaders" "$(TargetDir)\resources\shaders"
+if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
+xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\meshes" "$(TargetDir)\resources\meshes"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AEGui.cpp" />
+    <ClCompile Include="AEScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AEGeometry.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -175,7 +185,7 @@
     <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="AEShader.cpp" />
     <ClCompile Include="GL\glew.c" />
     <ClCompile Include="AEViewport.cpp" />
   </ItemGroup>
@@ -188,6 +198,7 @@
     <ClInclude Include="AEDiagnostics.h" />
     <ClInclude Include="AEGeometry.h" />
     <ClInclude Include="AELight.h" />
+    <ClInclude Include="AEScene.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />
@@ -197,18 +208,17 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Shader.h" />
+    <ClInclude Include="AEShader.h" />
     <ClInclude Include="GL\glew.h" />
     <ClInclude Include="AEViewport.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="GLSL\basic.glsl" />
-    <None Include="imgui.ini" />
-    <None Include="Objects\BoxVertexColors.gltf" />
-    <None Include="Objects\simpleTriangle.bin" />
-    <None Include="Objects\Triangle.gltf" />
-    <None Include="Objects\triangleWithoutIndices.bin" />
-    <None Include="Objects\TriangleWithoutIndices.gltf" />
+    <None Include="resources\shaders\basic.glsl" />
+    <None Include="resources\meshes\BoxVertexColors.gltf" />
+    <None Include="resources\meshes\simpleTriangle.bin" />
+    <None Include="resources\meshes\Triangle.gltf" />
+    <None Include="resources\meshes\triangleWithoutIndices.bin" />
+    <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

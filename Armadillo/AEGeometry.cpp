@@ -9,18 +9,12 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-namespace AE
-{
-	extern int fpsCup;
-}
-
 bool AEGeometry::Init()
 {
 	AEPrimitive plane(eAE_PrimitiveType_Plane);
 
 	Assimp::Importer importer;
-	//const std::string objFile = "./Objects/TriangleWithoutIndices.gltf";
-	const std::string objFile = "./Objects/BoxVertexColors.gltf";
+	const std::string objFile = "./resources/meshes/BoxVertexColors.gltf";
 	const aiScene* scene = NULL;
 
 	std::ifstream fin(objFile.c_str());
@@ -59,8 +53,7 @@ bool AEGeometry::Init()
 	float* packed_vertices = new float[triangle->mNumVertices * vert_data_size];
 	// Get start address of packed array 
 	float* start = packed_vertices;
-
-	unsigned int pos = 0;
+	// Pack data 
 	for (unsigned int vert_id = 0; vert_id < triangle->mNumVertices; vert_id++)
 	{
 		// Position

@@ -1,26 +1,30 @@
 #pragma once
 
-#include <windows.h>
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
 
-#include "Shader.h"
-#include "AEGeometry.h"
+#include "AEScene.h"
+#include "AEShader.h"
 
 class AEViewport
 {
 	GLFWwindow* window;
 
 public:
+	float FpsCap;
+
 	AEViewport() {};
+	AEViewport(bool& complete, int view_x, int view_y);
 	~AEViewport() {};
 
-	bool Init(int view_x, int view_y);
+	void CheckForExtesions(std::vector<const char*>& extensions);
 	void PrepResources();
+	void ProcessInput();
 	void Render();
 	void Destroy();
 	GLFWwindow* GetWindow();
 
-	Shader* shader_basic;
+	AECamera*	currentCamera;
+	AEShader*	shader_basic;
 	AEGeometry* geometry_basic;
 };

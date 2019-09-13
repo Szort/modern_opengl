@@ -18,9 +18,6 @@
     <ClCompile Include="GL\glew.c">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
@@ -51,12 +48,15 @@
     <ClCompile Include="AEViewport.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="AEScene.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="AEShader.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GL\glew.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="AELight.h">
@@ -113,18 +113,23 @@
     <ClInclude Include="AEViewport.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
+    <ClInclude Include="AEScene.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="AEShader.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="GLSL\basic.glsl" />
-    <None Include="Objects\Triangle.gltf" />
-    <None Include="Objects\TriangleWithoutIndices.gltf" />
-    <None Include="Objects\simpleTriangle.bin">
+    <None Include="resources\shaders\basic.glsl" />
+    <None Include="resources\meshes\BoxVertexColors.gltf" />
+    <None Include="resources\meshes\simpleTriangle.bin">
       <Filter>Pliki zasobów</Filter>
     </None>
-    <None Include="Objects\triangleWithoutIndices.bin">
+    <None Include="resources\meshes\Triangle.gltf" />
+    <None Include="resources\meshes\triangleWithoutIndices.bin">
       <Filter>Pliki zasobów</Filter>
     </None>
-    <None Include="Objects\BoxVertexColors.gltf" />
-    <None Include="imgui.ini" />
+    <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
   </ItemGroup>
 </Project>

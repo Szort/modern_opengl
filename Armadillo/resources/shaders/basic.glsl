@@ -13,7 +13,6 @@ layout(std140, binding = 2) buffer matBuffer
 };
 
 uniform mat4 ViewProjectionMatrix;
-uniform mat4 ModelMatrix;
 
 out vec4 FragPos;
 out vec3 VertColor;

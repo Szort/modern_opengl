@@ -23,7 +23,7 @@ public:
 	{
 		Cameras.push_back(object);
 		
-		unsigned int matrixListSize = Matrices.size();
+		unsigned int matrixListSize = (unsigned int)Matrices.size();
 		Matrices.push_back(object.ModelMatrix);
 		object.SetMatrixID(matrixListSize);
 	};
@@ -32,7 +32,7 @@ public:
 	{
 		Lights.push_back(object);
 
-		unsigned int matrixListSize = Matrices.size();
+		unsigned int matrixListSize = (unsigned int)Matrices.size();
 		Matrices.push_back(object.ModelMatrix);
 		object.SetMatrixID(matrixListSize);
 	};
@@ -41,7 +41,7 @@ public:
 	{
 		Geometry.push_back(object);
 
-		unsigned int matrixListSize = Matrices.size();
+		unsigned int matrixListSize = (unsigned int)Matrices.size();
 		Matrices.push_back(object.ModelMatrix);
 		object.SetMatrixID(matrixListSize);
 	};
@@ -50,7 +50,7 @@ public:
 	{
 		Primitives.push_back(object);
 
-		unsigned int matrixListSize = Matrices.size();
+		unsigned int matrixListSize = (unsigned int)Matrices.size();
 		Matrices.push_back(object.ModelMatrix);
 		object.SetMatrixID(matrixListSize);
 	};

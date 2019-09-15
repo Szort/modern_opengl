@@ -11,20 +11,15 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-bool AEGeometry::Init()
+bool AEGeometry::Import(std::string objFile, AEDrawList& drawList)
 {
 	DiagTimer perf;
-	AEPrimitive plane(eAE_PrimitiveType_Plane);
-
 	Assimp::Importer importer;
-	const std::string objFile = "./resources/meshes/Sponza/Sponza.gltf";
-	const aiScene* scene = NULL;
 
+	// Determin if file exist
 	std::ifstream fin(objFile.c_str());
-	if (!fin.fail())
-	{
+	if (!fin.fail()) {
 		fin.close();
-		std::cout << "file exist!" << std::endl;
 	}
 	else {
 		std::cout << "No import!" << std::endl;
@@ -32,8 +27,10 @@ bool AEGeometry::Init()
 		return NULL;
 	}
 
-	scene = importer.ReadFile(objFile.c_str(), aiProcessPreset_TargetRealtime_Quality);
+	// Import file and create pointer to scene
+	const aiScene* scene = importer.ReadFile(objFile.c_str(), aiProcessPreset_TargetRealtime_Quality);
 
+	// Check if success with import
 	if (!scene)
 	{
 		std::cout << importer.GetErrorString() << std::endl;
@@ -41,19 +38,11 @@ bool AEGeometry::Init()
 		return NULL;
 	}
 
-	std::cout << "Number of imported meshes: " << scene->mNumMeshes << std::endl;
-
-	unsigned int vert_data_size = 14;
-	unsigned int stride_size = vert_data_size * sizeof(float);
-
 	unsigned int vertex_count = 0;
 	unsigned int indices_count = 0;
-	mesh_count = scene->mNumMeshes;
 
-	std::vector<AEDrawElementsCommand> vDrawCommand;
-	std::vector<unsigned int> vMatrixId;
-
-	for (int i(0); i < mesh_count; i++)
+	// Construct draw command list
+	for (int i(0); i < scene->mNumMeshes; i++)
 	{
 		unsigned int element_count = scene->mMeshes[i]->mNumFaces * scene->mMeshes[i]->mFaces[0].mNumIndices;
 
@@ -63,23 +52,27 @@ bool AEGeometry::Init()
 		newDraw.firstIndex = indices_count;
 		newDraw.baseVertex = vertex_count;
 		newDraw.baseInstance = i;
-		vDrawCommand.push_back(newDraw);
-		vMatrixId.push_back(0);
+
+		drawList.CommandList.push_back(newDraw);
+		drawList.IndexList.push_back(i);
+		drawList.MatrixList.push_back(glm::scale(ModelMatrix, glm::vec3(0.01f)));
 
 		vertex_count += scene->mMeshes[i]->mNumVertices;
 		indices_count += element_count;
 	}
 
 	// Allocate memory for array packing
-	float* vertex_packed = new float[vertex_count * vert_data_size];
+	float* vertex_packed = new float[vertex_count * drawList.vert_data_size];
 	float* vertex_packed_start = vertex_packed;
 	unsigned int* indices_packed = new unsigned int[indices_count];
 	unsigned int* indices_packed_start = indices_packed;
 
+	size_t size_test = sizeof(vertex_packed);
+
 	perf.StartTimer();
 
 	// Pack vertex geometry data
-	for (int i(0); i < mesh_count; i++)
+	for (int i(0); i < scene->mNumMeshes; i++)
 	{
 		for (unsigned int vert_id = 0; vert_id < scene->mMeshes[i]->mNumVertices; vert_id++)
 		{
@@ -139,61 +132,18 @@ bool AEGeometry::Init()
 	indices_packed = indices_packed_start;
 	indices_packed_start = NULL;
 
-	// Generate geometry buffers
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ibo);
-	glGenBuffers(1, &indirectDrawBuffer);
-	glGenBuffers(1, &iid);
+	drawList.vertex_count = vertex_count;
+	drawList.indices_count = indices_count;
 
-	glBindVertexArray(vao);
-	glObjectLabel(GL_BUFFER, vao, -1, "Vertex Array Buffer");
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	drawList.vertex_data = new float[vertex_count];
+	drawList.indices_data = new unsigned int[indices_count];
 
-	glEnableVertexAttribArray(VAO_POSITION_LOCATION);
-	glVertexAttribPointer(VAO_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, stride_size, 0);
+	// Append data to global buffer
+	drawList.vertex_data = vertex_packed;
+	drawList.indices_data = indices_packed;
 
-	glEnableVertexAttribArray(VAO_COLOR_LOCATION);
-	glVertexAttribPointer(VAO_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, stride_size, (void*)(4 * sizeof(float)));
+	//std::memcpy(drawList.vertex_data, vertex_packed, vertex_count);
+	//std::memcpy(drawList.indices_data, indices_packed, indices_count);
 
-	glEnableVertexAttribArray(VAO_NORMAL_LOCATION);
-	glVertexAttribPointer(VAO_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, stride_size, (void*)(8 * sizeof(float)));
-
-	glEnableVertexAttribArray(VAO_TEXTURECOORD_LOCATION);
-	glVertexAttribPointer(VAO_TEXTURECOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, stride_size, (void*)(12 * sizeof(float)));
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertex_count * stride_size, vertex_packed, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, vbo, -1, "Vertex Buffer");
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_count * sizeof(unsigned int), indices_packed, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, ibo, -1, "Indices Buffer");
-	
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawBuffer);
-	glBufferData(GL_DRAW_INDIRECT_BUFFER, mesh_count * sizeof(AEDrawElementsCommand), &vDrawCommand[0], GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, indirectDrawBuffer, -1, "Indirect Draw Buffer");
-	
-	glBindBuffer(GL_ARRAY_BUFFER, iid);
-	glBufferData(GL_ARRAY_BUFFER, mesh_count * sizeof(unsigned int), &vMatrixId[0], GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, iid, -1, "Matrix ID Buffer");
-
-	glEnableVertexAttribArray(VAO_DRAWID_LOCATION);
-	glVertexAttribIPointer(VAO_DRAWID_LOCATION, 1, GL_UNSIGNED_INT, 0, (void*)0);
-	glVertexAttribDivisor(VAO_DRAWID_LOCATION, 1);
-
-	if (vbo != 0 && vao != 0 && ibo != 0)
-		return true;
-	else
-		return false;
-}
-
-void AEGeometry::BindGeometry()
-{
-	glBindVertexArray(vao);
-}
-
-void AEGeometry::UnbindGeometry()
-{
-	glBindVertexArray(0);
+	return true;
 }

@@ -173,6 +173,7 @@ xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\meshes" "$(TargetDir)\resources
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AEEngine.cpp" />
     <ClCompile Include="AEGui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AEGeometry.cpp" />

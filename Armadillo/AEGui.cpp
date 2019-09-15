@@ -21,10 +21,8 @@ void AEGui::Initiate(GLFWwindow* window)
 	ImGui_ImplOpenGL3_Init("#version 450");
 }
 
-void AEGui::Draw(AEViewport& viewport)
+void AEGui::Draw(AEViewport& viewport, AEEngine& engine)
 {
-	//ImGui::BeginDocked(context->CurrentWindow, NULL);
-
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -40,7 +38,7 @@ void AEGui::Draw(AEViewport& viewport)
 		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Another Window", &show_another_window);
 		
-		ImGui::SliderFloat("float", &viewport.FpsCap, 1.0f, 120.0f);    // Edit 1 float using a slider from 0.0f to 1.0f
+		ImGui::SliderFloat("float", &engine.FpsCap, 1.0f, 120.0f);    // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 		
 		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)

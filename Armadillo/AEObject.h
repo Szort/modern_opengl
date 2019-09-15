@@ -21,6 +21,35 @@ enum AEObjectType
 	eAE_ObjectType_Null
 };
 
+struct AEDrawElementsCommand
+{
+	unsigned int vertexCount;
+	unsigned int instanceCount;
+	unsigned int firstIndex;
+	unsigned int baseVertex;
+	unsigned int baseInstance;
+};
+
+struct AEDrawList
+{
+	// Data aligment
+	unsigned int vert_data_size = 14;
+	unsigned int stride_size = vert_data_size * sizeof(float);
+
+	// Paced data
+	float* vertex_data;
+	unsigned int* indices_data;
+
+	// Track data size
+	unsigned int vertex_count;
+	unsigned int indices_count;
+
+	// Indirect draw command lists
+	std::vector<AEDrawElementsCommand>	CommandList;
+	std::vector<unsigned int>			IndexList;
+	std::vector<glm::mat4>				MatrixList;
+};
+
 // Base hierarhical object
 class AEObject
 {

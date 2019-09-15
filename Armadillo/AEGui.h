@@ -6,6 +6,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "AEViewport.h"
+#include "AEEngine.h"
 
 class AEGui
 {
@@ -26,6 +27,6 @@ public:
 	~AEGui() {};
 
 	void Initiate(GLFWwindow* window);
-	void Draw(AEViewport& viewport);
+	void Draw(AEViewport& viewport, AEEngine& engine);
 	void Destroy();
 };

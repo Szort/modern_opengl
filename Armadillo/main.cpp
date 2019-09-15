@@ -26,12 +26,16 @@
 
 std::vector<const char*> extensions = {
 	"GL_ARB_bindless_texture",
-	"GL_ARB_buffer_storage"
+	"GL_ARB_buffer_storage",
+	"GL_ARB_direct_state_access",
+	"GL_ARB_indirect_parameters",
+	"GL_ARB_map_buffer_range",
+	"GL_ARB_shader_draw_parameters",
+	"GL_ARB_sync"
 };
 
 int main()
 {
-	
 	// Create viewport to render
 	bool success;
 	AEViewport Viewport(success, 1280, 720);
@@ -47,26 +51,30 @@ int main()
 
 	Scene.Add(Camera);
 
+	// Import assets
+	AEGeometry Sponza;
+	Sponza.Import("./resources/meshes/Sponza/Sponza.gltf", Engine.DrawList);
+
+	// Compile shaders
+	AEShader Shader;
+	Shader.ShaderCompile("basic.glsl");
+
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
 	Viewport.currentCamera = &Camera;
-	Viewport.PrepResources();
-	unsigned int vp_location_id = glGetUniformLocation(Viewport.shader_basic->program_id, "ViewProjectionMatrix");
-	unsigned int m_location_id = glGetUniformLocation(Viewport.shader_basic->program_id, "ModelMatrix");
 
-	std::vector<glm::mat4> modelMatrices;
-	for (int i(0); i < 1; i++)
-	{
-		modelMatrices.push_back(glm::scale( Viewport.geometry_basic->GetModelMatrix(), glm::vec3(0.01f)));
-	}
+	unsigned int vp_location_id = glGetUniformLocation(Shader.program_id, "ViewProjectionMatrix");
 
 	unsigned int ModelMatrixSSBO;
 	glGenBuffers(1, &ModelMatrixSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ModelMatrixSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, modelMatrices.size() * sizeof(glm::mat4), modelMatrices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, Engine.DrawList.MatrixList.size() * sizeof(glm::mat4), Engine.DrawList.MatrixList.data(), GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ModelMatrixSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	glObjectLabel(GL_BUFFER, ModelMatrixSSBO, -1, "ModelMatrixSSBO");	
+
+	// Compile geometry data
+	Engine.CompileVAO();
 
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(Viewport.GetWindow()))
@@ -84,22 +92,17 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Bind resources
-		Viewport.shader_basic->BindShader();
-		Viewport.geometry_basic->BindGeometry();
+		Shader.BindShader();
+		Engine.BindVAO();
 		glUniformMatrix4fv(vp_location_id, 1, GL_FALSE, &Camera.GetVPMatrix()[0][0]);
-		glUniformMatrix4fv(m_location_id, 1, GL_FALSE, &Viewport.geometry_basic->GetModelMatrix()[0][0]);
 
 		// Draw binded geometry and shader when in use
-		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (void*)0, Viewport.geometry_basic->mesh_count, 0);
+		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (void*)0, (unsigned int)Engine.DrawList.CommandList.size(), 0);
 
 		glBindVertexArray(0);
 
-		GUI.Draw(Viewport);
-
-		// Sleeping time
-		Engine.sleep_time = (1000 / Viewport.FpsCap) - Engine.render_time;
-		Engine.sleep_time = Engine.sleep_time < 0 ? 0 : Engine.sleep_time;
-		Sleep(Engine.sleep_time);
+		GUI.Draw(Viewport, Engine);
+		Engine.Idle();
 
 		// Swap front and back buffers 
 		glfwSwapBuffers(Viewport.GetWindow());

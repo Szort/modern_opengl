@@ -116,8 +116,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Qt\5.12.0\msvc2017_64\include</AdditionalIncludeDirectories>
-      <AdditionalOptions>if not exist "$(TargetDir)resources" mkdir "$(TargetDir)resources" if not exist "$(TargetDir)resources\shaders" mkdir "$(TargetDir)resources\shaders"
-xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\shaders" "$(TargetDir)\resources\shaders" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -176,7 +174,6 @@ xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\meshes" "$(TargetDir)\resources
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AEGui.cpp" />
-    <ClCompile Include="AEScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AEGeometry.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />

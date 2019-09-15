@@ -5,6 +5,12 @@
 
 #include "AEObject.h"
 
+#define VAO_POSITION_LOCATION		0
+#define	VAO_COLOR_LOCATION			1
+#define VAO_NORMAL_LOCATION			2
+#define VAO_TEXTURECOORD_LOCATION	3
+#define VAO_DRAWID_LOCATION			4
+
 struct AEDrawElementsCommand
 {
 	unsigned int vertexCount;
@@ -16,10 +22,8 @@ struct AEDrawElementsCommand
 
 class AEGeometry : public AEObject
 {
-	glm::mat4 ModelMatrix;
-
 public:
-	AEGeometry(): ModelMatrix(glm::mat4(1.0f))
+	AEGeometry()
 	{
 		Position = glm::vec3(0.0f);
 		ModelMatrix = glm::translate(ModelMatrix, Position);
@@ -37,4 +41,6 @@ public:
 	unsigned int ibo;
 	unsigned int iid;
 	unsigned int indirectDrawBuffer;
+
+	unsigned int mesh_count;
 };

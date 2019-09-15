@@ -29,14 +29,14 @@ public:
 	glm::vec3 UpAxis;
 
 	AECamera():
-		FieldOfView(40.0f), NearClip(0.1f), FarClip(100.0f), Resolution(glm::vec3(1280.0f / 720.0f)),
+		FieldOfView(40.0f), NearClip(0.1f), FarClip(1000.0f), Resolution(glm::vec3(1280.0f / 720.0f)),
 		Direction(glm::vec3(0, 0, -1)), UpAxis(glm::vec3(0, 1, 0)),
 		Speed(0.2f), Yaw(180.0f), Pitch(0.0f),
 		MouseLast_X(0), MouseLast_Y(0), MouseCurrent_X(0), MouseCurrent_Y(0)
 	{
 		SetObjType(eAE_ObjectType_Camera);
 		
-		Position = glm::vec3(0, 0, 10);
+		Position = glm::vec3(0, 0, 5);
 		ComputeViewMatrix();
 	};
 	~AECamera() {};

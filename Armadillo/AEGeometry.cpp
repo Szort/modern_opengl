@@ -1,5 +1,7 @@
 #include "AEGeometry.h"
 #include "AEPrimitive.h"
+#include "AEDiagnostics.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -11,10 +13,11 @@
 
 bool AEGeometry::Init()
 {
+	DiagTimer perf;
 	AEPrimitive plane(eAE_PrimitiveType_Plane);
 
 	Assimp::Importer importer;
-	const std::string objFile = "./resources/meshes/BoxVertexColors.gltf";
+	const std::string objFile = "./resources/meshes/Sponza/Sponza.gltf";
 	const aiScene* scene = NULL;
 
 	std::ifstream fin(objFile.c_str());
@@ -40,112 +43,144 @@ bool AEGeometry::Init()
 
 	std::cout << "Number of imported meshes: " << scene->mNumMeshes << std::endl;
 
-	aiMesh* triangle = scene->mMeshes[0];
-	aiVector3D* vert_pos = triangle->mVertices;
-	aiColor4D* vert_color = triangle->mColors[0];
-	aiFace* faces = triangle->mFaces;
-	unsigned int indices_size = triangle->mNumFaces * faces->mNumIndices;
-
-	unsigned int vert_data_size = 8;
+	unsigned int vert_data_size = 14;
 	unsigned int stride_size = vert_data_size * sizeof(float);
 
-	// Pack vertices data like position, color, normal, etc.
-	float* packed_vertices = new float[triangle->mNumVertices * vert_data_size];
-	// Get start address of packed array 
-	float* start = packed_vertices;
-	// Pack data 
-	for (unsigned int vert_id = 0; vert_id < triangle->mNumVertices; vert_id++)
-	{
-		// Position
-		*packed_vertices = (*vert_pos).x;
-		packed_vertices++;
-		*packed_vertices = (*vert_pos).y;
-		packed_vertices++;
-		*packed_vertices = (*vert_pos).z;
-		packed_vertices++;
-		*packed_vertices = 0.0f;
-		packed_vertices++;
-		// Color
-		*packed_vertices = (*vert_color).r;
-		packed_vertices++;
-		*packed_vertices = (*vert_color).g;
-		packed_vertices++;
-		*packed_vertices = (*vert_color).b;
-		packed_vertices++;
-		*packed_vertices = (*vert_color).a;
-		packed_vertices++;
+	unsigned int vertex_count = 0;
+	unsigned int indices_count = 0;
+	mesh_count = scene->mNumMeshes;
 
-		// Go to next vertex
-		vert_pos++;
-		vert_color++;
+	std::vector<AEDrawElementsCommand> vDrawCommand;
+	std::vector<unsigned int> vMatrixId;
+
+	for (int i(0); i < mesh_count; i++)
+	{
+		unsigned int element_count = scene->mMeshes[i]->mNumFaces * scene->mMeshes[i]->mFaces[0].mNumIndices;
+
+		AEDrawElementsCommand newDraw;
+		newDraw.vertexCount = element_count;
+		newDraw.instanceCount = 1;
+		newDraw.firstIndex = indices_count;
+		newDraw.baseVertex = vertex_count;
+		newDraw.baseInstance = i;
+		vDrawCommand.push_back(newDraw);
+		vMatrixId.push_back(0);
+
+		vertex_count += scene->mMeshes[i]->mNumVertices;
+		indices_count += element_count;
 	}
 
-	// Back to start possition of the array
-	packed_vertices = start;
-	start = NULL;
+	// Allocate memory for array packing
+	float* vertex_packed = new float[vertex_count * vert_data_size];
+	float* vertex_packed_start = vertex_packed;
+	unsigned int* indices_packed = new unsigned int[indices_count];
+	unsigned int* indices_packed_start = indices_packed;
 
-	// Get indices data for this mesh
-	unsigned int* indices_list = new unsigned int[indices_size];
-	for (unsigned int face_id = 0; face_id < triangle->mNumFaces; face_id++)
+	perf.StartTimer();
+
+	// Pack vertex geometry data
+	for (int i(0); i < mesh_count; i++)
 	{
-		for (unsigned int indice_id = 0; indice_id < faces->mNumIndices; indice_id++)
-			indices_list[3 * face_id + indice_id] = faces->mIndices[indice_id];
+		for (unsigned int vert_id = 0; vert_id < scene->mMeshes[i]->mNumVertices; vert_id++)
+		{
+			// Position: vec4
+			*vertex_packed = scene->mMeshes[i]->mVertices[vert_id].x;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->mVertices[vert_id].y;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->mVertices[vert_id].z;
+			vertex_packed++;
+			*vertex_packed = 0.0f;
+			vertex_packed++;
 
-		faces++;
+			// Vertex Color: vec4
+			*vertex_packed = scene->mMeshes[i]->HasVertexColors(0) ? scene->mMeshes[i]->mColors[0]->r : 0.0f;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->HasVertexColors(0) ? scene->mMeshes[i]->mColors[0]->g : 0.0f;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->HasVertexColors(0) ? scene->mMeshes[i]->mColors[0]->b : 0.0f;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->HasVertexColors(0) ? scene->mMeshes[i]->mColors[0]->a : 0.0f;
+			vertex_packed++;
+
+			// Vertex Normal: vec4
+			*vertex_packed = scene->mMeshes[i]->mNormals[vert_id].x; // (*vert_color).r;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->mNormals[vert_id].y; // (*vert_color).g;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->mNormals[vert_id].z; // (*vert_color).b;
+			vertex_packed++;
+			*vertex_packed = 0.0f; // (*vert_color).a;
+			vertex_packed++;
+
+			// Texture Coordinate: vec2
+			*vertex_packed = scene->mMeshes[i]->HasTextureCoords(0) ? scene->mMeshes[i]->mTextureCoords[0]->x : 0.0f;
+			vertex_packed++;
+			*vertex_packed = scene->mMeshes[i]->HasTextureCoords(0) ? scene->mMeshes[i]->mTextureCoords[0]->y : 0.0f;
+			vertex_packed++;
+		}
+
+		// Pack indices geometry data
+		for (unsigned int face_id = 0; face_id < scene->mMeshes[i]->mNumFaces; face_id++)
+		{
+			for (unsigned int indice_id = 0; indice_id < scene->mMeshes[i]->mFaces[face_id].mNumIndices; indice_id++)
+			{
+				*indices_packed = scene->mMeshes[i]->mFaces[face_id].mIndices[indice_id];
+				indices_packed++;
+			}
+		}
 	}
 
-	int label_max_lenght;
-	glGetIntegerv(GL_MAX_LABEL_LENGTH, &label_max_lenght);
+	std::cout << "Time packing: " << perf.GetTimer() << "ns" << std::endl;
 
+	// Back to start position of the packed arrays
+	vertex_packed = vertex_packed_start;
+	vertex_packed_start = NULL;
+	indices_packed = indices_packed_start;
+	indices_packed_start = NULL;
+
+	// Generate geometry buffers
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &indirectDrawBuffer);
+	glGenBuffers(1, &iid);
 
 	glBindVertexArray(vao);
-	glObjectLabel(GL_BUFFER, vao, 20, "Vertex Array Buffer");
+	glObjectLabel(GL_BUFFER, vao, -1, "Vertex Array Buffer");
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride_size, 0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride_size, (void*)(4 * sizeof(float)));
+
+	glEnableVertexAttribArray(VAO_POSITION_LOCATION);
+	glVertexAttribPointer(VAO_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, stride_size, 0);
+
+	glEnableVertexAttribArray(VAO_COLOR_LOCATION);
+	glVertexAttribPointer(VAO_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, stride_size, (void*)(4 * sizeof(float)));
+
+	glEnableVertexAttribArray(VAO_NORMAL_LOCATION);
+	glVertexAttribPointer(VAO_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, stride_size, (void*)(8 * sizeof(float)));
+
+	glEnableVertexAttribArray(VAO_TEXTURECOORD_LOCATION);
+	glVertexAttribPointer(VAO_TEXTURECOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, stride_size, (void*)(12 * sizeof(float)));
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, triangle->mNumVertices * stride_size, packed_vertices, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, vbo, 14, "Vertex Buffer");
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * stride_size, vertex_packed, GL_STATIC_DRAW);
+	glObjectLabel(GL_BUFFER, vbo, -1, "Vertex Buffer");
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof(unsigned int), indices_list, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, ibo, 15, "Indices Buffer");
-
-	AEDrawElementsCommand vDrawCommand[2];
-	for (unsigned int i(0); i < 2; ++i)
-	{
-		vDrawCommand[i].vertexCount = 36;
-		vDrawCommand[i].instanceCount = 1;
-		vDrawCommand[i].firstIndex = 0;
-		vDrawCommand[i].baseVertex = 0;
-		vDrawCommand[i].baseInstance = i;
-	}
-
-	glGenBuffers(1, &indirectDrawBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_count * sizeof(unsigned int), indices_packed, GL_STATIC_DRAW);
+	glObjectLabel(GL_BUFFER, ibo, -1, "Indices Buffer");
+	
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawBuffer);
-	glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(vDrawCommand), vDrawCommand, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, indirectDrawBuffer, 21, "Indirect Draw Buffer");
-
-	unsigned int vDrawId[2];
-	for (unsigned int i(0); i < 2; i++)
-	{
-		vDrawId[i] = i;
-	}
-
-	glGenBuffers(1, &iid);
+	glBufferData(GL_DRAW_INDIRECT_BUFFER, mesh_count * sizeof(AEDrawElementsCommand), &vDrawCommand[0], GL_STATIC_DRAW);
+	glObjectLabel(GL_BUFFER, indirectDrawBuffer, -1, "Indirect Draw Buffer");
+	
 	glBindBuffer(GL_ARRAY_BUFFER, iid);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vDrawId), vDrawId, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, iid, 15, "Draw ID Buffer");
+	glBufferData(GL_ARRAY_BUFFER, mesh_count * sizeof(unsigned int), &vMatrixId[0], GL_STATIC_DRAW);
+	glObjectLabel(GL_BUFFER, iid, -1, "Matrix ID Buffer");
 
-	glEnableVertexAttribArray(2);
-	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, 0, (void*)0);
-	glVertexAttribDivisor(2, 1);
+	glEnableVertexAttribArray(VAO_DRAWID_LOCATION);
+	glVertexAttribIPointer(VAO_DRAWID_LOCATION, 1, GL_UNSIGNED_INT, 0, (void*)0);
+	glVertexAttribDivisor(VAO_DRAWID_LOCATION, 1);
 
 	if (vbo != 0 && vao != 0 && ibo != 0)
 		return true;

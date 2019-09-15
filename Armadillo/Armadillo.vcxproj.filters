@@ -48,9 +48,6 @@
     <ClCompile Include="AEViewport.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="AEScene.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="AEShader.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>

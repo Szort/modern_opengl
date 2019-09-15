@@ -34,46 +34,6 @@ void AEGui::Draw(AEViewport& viewport)
 		float f = 0.0f;
 		int counter = 0;
 
-		//ImGui::BeginMainMenuBar();
-		//ImGui::Text("Main Menu Bar.");
-		//ImGui::EndMainMenuBar();
-
-		//bool open_w = true;
-		//ImDrawList* draw_list = ImGui::GetWindowDrawList();
-		//const ImRect pickRc(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
-		//draw_list->AddRectFilled(pickRc.Min, pickRc.Max, 0xFF000000);
-
-		//ImGui::SetNextWindowContentSize(ImVec2(200, 200));
-		//ImGui::BeginTabBar("asd", ImGuiTabBarFlags_DockNode);
-		//ImGui::EndTabBar();
-		//
-		//
-		//ImGui::SetNextWindowContentSize(ImVec2(200, 200));
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-		//static bool menu = false;
-		//ImGui::Begin("Test #1490, v2", NULL, ImGuiWindowFlags_AlwaysAutoResize | (menu ? ImGuiWindowFlags_MenuBar : 0));
-		//ImVec2 p1 = ImGui::GetCursorScreenPos();
-		//ImVec2 p2 = ImVec2(p1.x + 200, p1.y + 200);
-		//ImGui::Checkbox("Menu", &menu);
-		//ImGui::GetWindowDrawList()->AddLine(p1, p2, IM_COL32(255, 0, 255, 255));
-		//ImGui::GetWindowDrawList()->AddCircleFilled(p1, 6.0f, IM_COL32(255, 0, 255, 255));
-		//ImGui::GetWindowDrawList()->AddCircleFilled(p2, 6.0f, IM_COL32(255, 0, 255, 255));
-		//ImGui::End();
-		//ImGui::PopStyleVar();
-
-
-		// Set up docked layout
-		//ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
-		//ImGui::DockBuilderAddNode(dockspace_id); // Add empty node
-		//ImGui::DockBuilderSetNodeSize(dockspace_id, dockspace_size);
-		////
-		////dock_main_id = dockspace_id; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
-		////ImGuiID dock_id_prop = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.20f, NULL, &dock_main_id);
-		//ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.20f, NULL, &dock_main_id);
-		////
-		//ImGui::DockBuilderDockWindow("Log", dock_id_bottom);
-		//ImGui::DockBuilderFinish(dockspace_id);
-
 		ImGui::Begin("Hello, world!");
 		
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)

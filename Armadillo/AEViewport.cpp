@@ -11,7 +11,7 @@ AEViewport::AEViewport(bool& complete, int view_x, int view_y)
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a windowed mode window and its OpenGL context
 	window = glfwCreateWindow(view_x, view_y, "Armadillo", NULL, NULL);

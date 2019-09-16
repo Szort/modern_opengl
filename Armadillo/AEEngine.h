@@ -12,9 +12,20 @@
 #define VAO_TEXTURECOORD_LOCATION	3
 #define VAO_DRAWID_LOCATION			4
 
+struct AEImportDataSlice
+{
+	unsigned int	vertex_count;
+	unsigned int	indices_count;
+
+	float*			vertex_data;
+	unsigned int*	indices_data;
+	float*			vertex_data_start;
+	unsigned int*	indices_data_start;
+};
+
 class AEEngine
 {
-	std::vector<AEShader> Shaders;
+	std::vector<AEShader>			Shaders;
 
 	unsigned int VAO_Static;
 	unsigned int VBO_Static;
@@ -28,12 +39,7 @@ public:
 	double		SleepTime;
 	AEDrawList	DrawList;
 
-	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {
-		DrawList.vertex_count = 0;
-		DrawList.indices_count = 0;
-		DrawList.vertex_data = new float();
-		DrawList.indices_data = new unsigned int();
-	};
+	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {};
 	~AEEngine() {};
 
 	void ConstructData(AEScene& scene);

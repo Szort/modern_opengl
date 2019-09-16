@@ -53,6 +53,7 @@ int main()
 
 	// Import assets
 	Scene.Import("./resources/meshes/Sponza/Sponza.gltf");
+	Scene.Import("./resources/meshes/BoxVertexColors.gltf");
 
 	// Construct buffer data from imported meshes
 	Engine.ConstructData(Scene);

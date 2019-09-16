@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include "AEScene.h"
 #include "AEObject.h"
 #include "AEShader.h"
+#include "AEDiagnostics.h"
 
 #define VAO_POSITION_LOCATION		0
 #define	VAO_COLOR_LOCATION			1
@@ -21,12 +23,12 @@ class AEEngine
 	unsigned int DCBO_Static;
 
 public:
+	float		FpsCap;
 	double		RenderTime;
 	double		SleepTime;
-	float		FpsCap;
 	AEDrawList	DrawList;
 
-	AEEngine(): RenderTime(0), SleepTime(0) {
+	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {
 		DrawList.vertex_count = 0;
 		DrawList.indices_count = 0;
 		DrawList.vertex_data = new float();
@@ -34,6 +36,7 @@ public:
 	};
 	~AEEngine() {};
 
+	void ConstructData(AEScene& scene);
 	void CompileVAO();
 	void BindVAO();
 	void UnbindVAO();

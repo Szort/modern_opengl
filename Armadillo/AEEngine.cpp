@@ -1,4 +1,132 @@
+// Needed for Assimp import objects
+#include <assimp/Importer.hpp>
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "AEEngine.h"
+
+void AEEngine::ConstructData(AEScene& scene)
+{
+	DiagTimer perf;
+	Assimp::Importer importer;
+
+	unsigned int vertex_count = 0;
+	unsigned int indices_count = 0;
+
+	for (unsigned int asset_id(0); asset_id < scene.ImportList.size(); asset_id++)
+	{
+		// Import file and create pointer to scene
+		const aiScene* import = importer.ReadFile(scene.ImportList[asset_id].c_str(), aiProcessPreset_TargetRealtime_Quality);
+		
+		// Check if success with import
+		if (!import)
+		{
+			std::cout << importer.GetErrorString() << std::endl;
+			std::cin.get();
+			continue;
+		}
+
+		//Check if asset have any meshes
+		if (!import->HasMeshes())
+		{
+			std::cout << "No meshes imported from file: " << scene.ImportList[asset_id] << std::endl;
+			continue;
+		}
+
+		perf.StartTimer();
+
+		// Construct draw command list
+		for (unsigned int i(0); i < import->mNumMeshes; i++)
+		{
+			unsigned int element_count = import->mMeshes[i]->mNumFaces * import->mMeshes[i]->mFaces[0].mNumIndices;
+
+			AEDrawElementsCommand newDraw;
+			newDraw.vertexCount = element_count;
+			newDraw.instanceCount = 1;
+			newDraw.firstIndex = indices_count;
+			newDraw.baseVertex = vertex_count;
+			newDraw.baseInstance = i;
+
+			DrawList.CommandList.push_back(newDraw);
+			DrawList.IndexList.push_back(i);
+			DrawList.MatrixList.push_back(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f)));
+
+			vertex_count += import->mMeshes[i]->mNumVertices;
+			indices_count += element_count;
+		}
+
+		DrawList.vertex_count = vertex_count;
+		DrawList.indices_count = indices_count;
+
+		// Allocate memory for array packing
+		DrawList.vertex_data = new float[vertex_count * DrawList.vert_data_size];
+		float* vertex_packed_start = DrawList.vertex_data;
+		DrawList.indices_data = new unsigned int[indices_count];
+		unsigned int* indices_packed_start = DrawList.indices_data;
+
+		// Pack vertex geometry data
+		for (unsigned int i(0); i < import->mNumMeshes; i++)
+		{
+			for (unsigned int vert_id = 0; vert_id < import->mMeshes[i]->mNumVertices; vert_id++)
+			{
+				// Position: vec4
+				*DrawList.vertex_data = import->mMeshes[i]->mVertices[vert_id].x;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->mVertices[vert_id].y;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->mVertices[vert_id].z;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = 0.0f;
+				DrawList.vertex_data++;
+
+				// Vertex Color: vec4
+				*DrawList.vertex_data = import->mMeshes[i]->HasVertexColors(0) ? import->mMeshes[i]->mColors[0]->r : 0.0f;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->HasVertexColors(0) ? import->mMeshes[i]->mColors[0]->g : 0.0f;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->HasVertexColors(0) ? import->mMeshes[i]->mColors[0]->b : 0.0f;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->HasVertexColors(0) ? import->mMeshes[i]->mColors[0]->a : 0.0f;
+				DrawList.vertex_data++;
+
+				// Vertex Normal: vec4
+				*DrawList.vertex_data = import->mMeshes[i]->mNormals[vert_id].x; // (*vert_color).r;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->mNormals[vert_id].y; // (*vert_color).g;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->mNormals[vert_id].z; // (*vert_color).b;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = 0.0f; // (*vert_color).a;
+				DrawList.vertex_data++;
+
+				// Texture Coordinate: vec2
+				*DrawList.vertex_data = import->mMeshes[i]->HasTextureCoords(0) ? import->mMeshes[i]->mTextureCoords[0]->x : 0.0f;
+				DrawList.vertex_data++;
+				*DrawList.vertex_data = import->mMeshes[i]->HasTextureCoords(0) ? import->mMeshes[i]->mTextureCoords[0]->y : 0.0f;
+				DrawList.vertex_data++;
+			}
+
+			// Pack indices geometry data
+			for (unsigned int face_id = 0; face_id < import->mMeshes[i]->mNumFaces; face_id++)
+			{
+				for (unsigned int indice_id = 0; indice_id < import->mMeshes[i]->mFaces[face_id].mNumIndices; indice_id++)
+				{
+					*DrawList.indices_data = import->mMeshes[i]->mFaces[face_id].mIndices[indice_id];
+					DrawList.indices_data++;
+				}
+			}
+		}
+
+		// Back to start position of the packed arrays
+		DrawList.vertex_data = vertex_packed_start;
+		vertex_packed_start = NULL;
+		DrawList.indices_data = indices_packed_start;
+		indices_packed_start = NULL;
+
+		std::cout << "Time packing: " << perf.GetTimer() << "ns" << std::endl;
+	}
+}
 
 void AEEngine::CompileVAO()
 {

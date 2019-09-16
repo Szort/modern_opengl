@@ -52,8 +52,10 @@ int main()
 	Scene.Add(Camera);
 
 	// Import assets
-	AEGeometry Sponza;
-	Sponza.Import("./resources/meshes/Sponza/Sponza.gltf", Engine.DrawList);
+	Scene.Import("./resources/meshes/Sponza/Sponza.gltf");
+
+	// Construct buffer data from imported meshes
+	Engine.ConstructData(Scene);
 
 	// Compile shaders
 	AEShader Shader;

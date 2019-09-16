@@ -2,19 +2,22 @@
 
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
+#include <assimp/scene.h>
 
 #include "AEObject.h"
 
-class AEGeometry : public AEObject
+class AEMesh : public AEObject
 {
+	aiMesh* Mesh;
+
 public:
-	AEGeometry()
+	AEMesh()
 	{
 		Position = glm::vec3(0.0f);
 		ModelMatrix = glm::translate(ModelMatrix, Position);
 	};
-	~AEGeometry() {};
+	~AEMesh() {};
 
-	bool Import(std::string objFile, AEDrawList& drawList);
-	glm::mat4 GetModelMatrix() { return ModelMatrix; };
+	void SetMesh(aiMesh* mesh) { Mesh = mesh; };
+	aiMesh* GetMesh() { return Mesh; };
 };

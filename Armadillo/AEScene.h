@@ -1,57 +1,42 @@
 #pragma once
 
-#include <iostream>
 #include "AECamera.h"
 #include "AELight.h"
 #include "AEPrimitive.h"
-#include "AEGeometry.h"
+#include "AEMesh.h"
 
 class AEScene
 {
-	std::vector<glm::mat4>		Matrices;
+public:
+	std::vector<std::string>	ImportList;
 
 	std::vector<AECamera>		Cameras;
 	std::vector<AELight>		Lights;
 	std::vector<AEPrimitive>	Primitives;
-	std::vector<AEGeometry>		Geometry;
+	std::vector<AEMesh>			Meshes;
 
-public:
 	AEScene() {};
 	~AEScene() {};
+
+	bool Import(std::string objFile);
 
 	void Add(AECamera& object)
 	{
 		Cameras.push_back(object);
-		
-		unsigned int matrixListSize = (unsigned int)Matrices.size();
-		Matrices.push_back(object.ModelMatrix);
-		object.SetMatrixID(matrixListSize);
 	};
 
 	void Add(AELight& object)
 	{
 		Lights.push_back(object);
-
-		unsigned int matrixListSize = (unsigned int)Matrices.size();
-		Matrices.push_back(object.ModelMatrix);
-		object.SetMatrixID(matrixListSize);
 	};
 
-	void Add(AEGeometry& object)
+	void Add(AEMesh& object)
 	{
-		Geometry.push_back(object);
-
-		unsigned int matrixListSize = (unsigned int)Matrices.size();
-		Matrices.push_back(object.ModelMatrix);
-		object.SetMatrixID(matrixListSize);
+		Meshes.push_back(object);
 	};
 
 	void Add(AEPrimitive& object)
 	{
 		Primitives.push_back(object);
-
-		unsigned int matrixListSize = (unsigned int)Matrices.size();
-		Matrices.push_back(object.ModelMatrix);
-		object.SetMatrixID(matrixListSize);
 	};
 };

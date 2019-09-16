@@ -168,15 +168,15 @@
       <Command>if not exist "$(TargetDir)resources" mkdir "$(TargetDir)resources" 
 if not exist "$(TargetDir)resources\shaders" mkdir "$(TargetDir)resources\shaders"
 xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\shaders" "$(TargetDir)\resources\shaders"
-if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
-xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\meshes" "$(TargetDir)\resources\meshes"</Command>
+if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AEEngine.cpp" />
     <ClCompile Include="AEGui.cpp" />
+    <ClCompile Include="AEScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="AEGeometry.cpp" />
+    <ClCompile Include="AEMesh.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -194,7 +194,7 @@ xcopy /E /Y  "$(SolutionDir)\Armadillo\resources\meshes" "$(TargetDir)\resources
     <ClInclude Include="AEObject.h" />
     <ClInclude Include="AEPrimitive.h" />
     <ClInclude Include="AEDiagnostics.h" />
-    <ClInclude Include="AEGeometry.h" />
+    <ClInclude Include="AEMesh.h" />
     <ClInclude Include="AELight.h" />
     <ClInclude Include="AEScene.h" />
     <ClInclude Include="imgui\imconfig.h" />

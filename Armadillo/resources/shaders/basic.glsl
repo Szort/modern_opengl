@@ -7,7 +7,7 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 texCoord;
 layout(location = 4) in uint drawid;
 
-layout(std140, binding = 2) buffer matBuffer
+layout(std140, binding = 0) buffer matBuffer
 {
     mat4 matrix[];
 };

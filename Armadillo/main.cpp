@@ -66,15 +66,7 @@ int main()
 	GUI.Initiate(Viewport.GetWindow());
 	Viewport.currentCamera = &Camera;
 
-	unsigned int vp_location_id = glGetUniformLocation(Shader.program_id, "ViewProjectionMatrix");
-
-	unsigned int ModelMatrixSSBO;
-	glGenBuffers(1, &ModelMatrixSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ModelMatrixSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, Engine.DrawList.MatrixList.size() * sizeof(glm::mat4), Engine.DrawList.MatrixList.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ModelMatrixSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	glObjectLabel(GL_BUFFER, ModelMatrixSSBO, -1, "ModelMatrixSSBO");	
+	unsigned int vp_location_id = glGetUniformLocation(Shader.program_id, "ViewProjectionMatrix");	
 
 	// Compile geometry data
 	Engine.CompileVAO();
@@ -100,7 +92,7 @@ int main()
 		glUniformMatrix4fv(vp_location_id, 1, GL_FALSE, &Camera.GetVPMatrix()[0][0]);
 
 		// Draw binded geometry and shader when in use
-		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (void*)0, (unsigned int)Engine.DrawList.CommandList.size(), 0);
+		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (unsigned int)Engine.DrawList.CommandList.size(), 0);
 
 		glBindVertexArray(0);
 

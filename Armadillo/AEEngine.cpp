@@ -180,48 +180,67 @@ void AEEngine::ConstructData(AEScene& scene)
 void AEEngine::CompileVAO()
 {
 	// Generate geometry buffers
-	glGenVertexArrays(1, &VAO_Static);
-	glGenBuffers(1, &VBO_Static);
-	glGenBuffers(1, &IBO_Static);
+	glCreateVertexArrays(1, &VAO_Static);
+
+	glCreateBuffers(1, &VBO_Static);
+	glNamedBufferStorage(VBO_Static, DrawList.vertex_count * DrawList.stride_size, 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	vertexArrayPtr = glMapNamedBufferRange(VBO_Static, 0, DrawList.vertex_count * DrawList.stride_size, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+	glCreateBuffers(1, &IBO_Static);
+	glNamedBufferStorage(IBO_Static, DrawList.indices_count * sizeof(unsigned int), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	indicesArrayPtr = glMapNamedBufferRange(IBO_Static, 0, DrawList.indices_count * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+	glCreateBuffers(1, &DIBO_Static);
+	glNamedBufferStorage(DIBO_Static, DrawList.IndexList.size() * sizeof(unsigned int), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	drawIndexesPtr = glMapNamedBufferRange(DIBO_Static, 0, DrawList.IndexList.size() * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+	glVertexArrayVertexBuffer(VAO_Static, 0, VBO_Static, 0, 14 * sizeof(float));
+	glVertexArrayVertexBuffer(VAO_Static, 1, DIBO_Static, 0, sizeof(unsigned int));
+	glVertexArrayElementBuffer(VAO_Static, IBO_Static);
+
+	glEnableVertexArrayAttrib(VAO_Static, VAO_POSITION_LOCATION);
+	glEnableVertexArrayAttrib(VAO_Static, VAO_COLOR_LOCATION);
+	glEnableVertexArrayAttrib(VAO_Static, VAO_NORMAL_LOCATION);
+	glEnableVertexArrayAttrib(VAO_Static, VAO_TEXTURECOORD_LOCATION);
+	glEnableVertexArrayAttrib(VAO_Static, VAO_DRAWID_LOCATION);
+
+	glVertexArrayAttribFormat(VAO_Static, VAO_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(VAO_Static, VAO_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float));
+	glVertexArrayAttribFormat(VAO_Static, VAO_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float));
+	glVertexArrayAttribFormat(VAO_Static, VAO_TEXTURECOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float));
+	glVertexArrayAttribIFormat(VAO_Static, VAO_DRAWID_LOCATION, 1, GL_UNSIGNED_INT, 0);
+
+	glVertexArrayAttribBinding(VAO_Static, VAO_POSITION_LOCATION, 0);
+	glVertexArrayAttribBinding(VAO_Static, VAO_COLOR_LOCATION, 0);
+	glVertexArrayAttribBinding(VAO_Static, VAO_NORMAL_LOCATION, 0);
+	glVertexArrayAttribBinding(VAO_Static, VAO_TEXTURECOORD_LOCATION, 0);
+	glVertexArrayAttribBinding(VAO_Static, VAO_DRAWID_LOCATION, 1);
+
+	glVertexArrayBindingDivisor(VAO_Static, 1, 1);
+
+	// Additional buffers
 	glGenBuffers(1, &DCBO_Static);
-	glGenBuffers(1, &DIBO_Static);
-
-	glBindVertexArray(VAO_Static);
-	glObjectLabel(GL_BUFFER, VAO_Static, -1, "Vertex Array Buffer");
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_Static);
-
-	glEnableVertexAttribArray(VAO_POSITION_LOCATION);
-	glVertexAttribPointer(VAO_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, DrawList.stride_size, 0);
-
-	glEnableVertexAttribArray(VAO_COLOR_LOCATION);
-	glVertexAttribPointer(VAO_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, DrawList.stride_size, (void*)(4 * sizeof(float)));
-
-	glEnableVertexAttribArray(VAO_NORMAL_LOCATION);
-	glVertexAttribPointer(VAO_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, DrawList.stride_size, (void*)(8 * sizeof(float)));
-
-	glEnableVertexAttribArray(VAO_TEXTURECOORD_LOCATION);
-	glVertexAttribPointer(VAO_TEXTURECOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, DrawList.stride_size, (void*)(12 * sizeof(float)));
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_Static);
-	glBufferData(GL_ARRAY_BUFFER, DrawList.vertex_count * DrawList.stride_size, DrawList.vertex_data, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, VBO_Static, -1, "Vertex Buffer");
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO_Static);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, DrawList.indices_count * sizeof(unsigned int), DrawList.indices_data, GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, IBO_Static, -1, "Indices Buffer");
-
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, DCBO_Static);
-	glBufferData(GL_DRAW_INDIRECT_BUFFER, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), &DrawList.CommandList[0], GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, DCBO_Static, -1, "Indirect Draw Buffer");
+	glBufferStorage(GL_DRAW_INDIRECT_BUFFER, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	drawCommandPtr = glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
-	glBindBuffer(GL_ARRAY_BUFFER, DIBO_Static);
-	glBufferData(GL_ARRAY_BUFFER, DrawList.CommandList.size() * sizeof(unsigned int), &DrawList.IndexList[0], GL_STATIC_DRAW);
-	glObjectLabel(GL_BUFFER, DIBO_Static, -1, "Matrix ID Buffer");
+	glGenBuffers(1, &ModelMatrixSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ModelMatrixSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, DrawList.MatrixList.size() * sizeof(glm::mat4), DrawList.MatrixList.data(), GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ModelMatrixSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	glEnableVertexAttribArray(VAO_DRAWID_LOCATION);
-	glVertexAttribIPointer(VAO_DRAWID_LOCATION, 1, GL_UNSIGNED_INT, 0, (void*)0);
-	glVertexAttribDivisor(VAO_DRAWID_LOCATION, 1);
+	std::memcpy(vertexArrayPtr, DrawList.vertex_data, DrawList.vertex_count * DrawList.stride_size);
+	std::memcpy(indicesArrayPtr, DrawList.indices_data, DrawList.indices_count * sizeof(unsigned int));
+	std::memcpy(drawIndexesPtr, DrawList.IndexList.data(), DrawList.IndexList.size() * sizeof(unsigned int));
+	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawElementsCommand));
+
+	glObjectLabel(GL_BUFFER, VAO_Static, -1, "Vertex Array Buffer");
+	glObjectLabel(GL_BUFFER, VBO_Static, -1, "Vertex Buffer");
+	glObjectLabel(GL_BUFFER, IBO_Static, -1, "Indices Buffer");
+	glObjectLabel(GL_BUFFER, DIBO_Static, -1, "Indirect Draw Buffer");
+	glObjectLabel(GL_BUFFER, DCBO_Static, -1, "Draw Command Buffer");
+	glObjectLabel(GL_BUFFER, ModelMatrixSSBO, -1, "Model Matrix SSBO");
 }
 
 void AEEngine::Idle()

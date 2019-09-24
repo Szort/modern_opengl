@@ -32,6 +32,12 @@ class AEEngine
 	unsigned int IBO_Static;
 	unsigned int DIBO_Static;
 	unsigned int DCBO_Static;
+	unsigned int ModelMatrixSSBO;
+
+	void* vertexArrayPtr;
+	void* indicesArrayPtr;
+	void* drawIndexesPtr;
+	void* drawCommandPtr;
 
 public:
 	float		FpsCap;

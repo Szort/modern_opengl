@@ -18,7 +18,7 @@ public:
 	AEScene() {};
 	~AEScene() {};
 
-	bool Import(std::string objFile);
+	bool Import(std::string objFiled);
 
 	void Add(AECamera& object)
 	{

@@ -66,10 +66,11 @@ int main()
 	GUI.Initiate(Viewport.GetWindow());
 	Viewport.currentCamera = &Camera;
 
-	unsigned int vp_location_id = glGetUniformLocation(Shader.program_id, "ViewProjectionMatrix");	
-
 	// Compile geometry data
 	Engine.CompileVAO();
+	Engine.CompileUBO();
+	Engine.CompileSSBO();
+	Engine.CopyData_GPU();
 
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(Viewport.GetWindow()))
@@ -86,15 +87,19 @@ int main()
 		glClearColor(GUI.clear_color.x, GUI.clear_color.y, GUI.clear_color.z, GUI.clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Update data before rendering
+		Engine.GlobalUBO.CameraVPMatrix = Camera.GetVPMatrix();
+		Engine.UpdateUBO_GPU();
+
 		// Bind resources
 		Shader.BindShader();
 		Engine.BindVAO();
-		glUniformMatrix4fv(vp_location_id, 1, GL_FALSE, &Camera.GetVPMatrix()[0][0]);
 
 		// Draw binded geometry and shader when in use
-		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (unsigned int)Engine.DrawList.CommandList.size(), 0);
+		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)Engine.DrawList.CommandList.size(), 0);
 
-		glBindVertexArray(0);
+		// Unbind resources when finished to mantain order
+		Engine.UnbindVAO();
 
 		GUI.Draw(Viewport, Engine);
 		Engine.Idle();

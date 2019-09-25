@@ -7,12 +7,15 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 texCoord;
 layout(location = 4) in uint drawid;
 
-layout(std140, binding = 0) buffer matBuffer
+layout(std140, binding = 0) uniform matBuffer
+{
+    mat4 CameraVPMatrix;
+};
+
+layout(std140, binding = 0) buffer modelMatrixBuffer
 {
     mat4 matrix[];
 };
-
-uniform mat4 ViewProjectionMatrix;
 
 out vec4 FragPos;
 out vec3 VertColor;
@@ -25,7 +28,7 @@ void main()
 	NormalDir = normal;
 	TextCoord = texCoord;
 	FragPos = matrix[drawid] * position;
-	gl_Position = ViewProjectionMatrix * matrix[drawid] * position;
+	gl_Position = CameraVPMatrix * matrix[drawid] * position;
 }
 
 #shader fragment

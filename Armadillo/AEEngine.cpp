@@ -12,20 +12,23 @@ void AEEngine::ConstructData(AEScene& scene)
 	Assimp::Importer				importer;
 	std::vector<AEImportDataSlice>	ImportedData;
 
-	unsigned int					base_instance = 0;
-	unsigned int					vertex_count = 0;
-	unsigned int					indices_count = 0;
+	uint32_t					base_instance = 0;
+	uint32_t					vertex_count = 0;
+	uint32_t					indices_count = 0;
 
 	float*							vertex_packed_start = nullptr;
-	unsigned int*					indices_packed_start = nullptr;
+	uint32_t*					indices_packed_start = nullptr;
 
 	perf.StartTimer();
 
 	// Import all assets in que
-	for (unsigned int asset_id(0); asset_id < scene.ImportList.size(); asset_id++)
+	uint32_t this_vertex_count;
+	uint32_t this_indices_count;
+
+	for (uint32_t asset_id(0); asset_id < scene.ImportList.size(); asset_id++)
 	{
-		unsigned int this_vertex_count = 0;
-		unsigned int this_indices_count = 0;
+		this_vertex_count = 0;
+		this_indices_count = 0;
 
 		// Import file and create pointer to scene
 		const aiScene* import = importer.ReadFile(scene.ImportList[asset_id].c_str(), aiProcessPreset_TargetRealtime_Quality);
@@ -48,9 +51,9 @@ void AEEngine::ConstructData(AEScene& scene)
 		AEImportDataSlice import_data;
 
 		// Construct draw command list
-		for (unsigned int i(0); i < import->mNumMeshes; i++)
+		for (uint32_t i(0); i < import->mNumMeshes; i++)
 		{
-			unsigned int element_count = import->mMeshes[i]->mNumFaces * import->mMeshes[i]->mFaces[0].mNumIndices;
+			uint32_t element_count = import->mMeshes[i]->mNumFaces * import->mMeshes[i]->mFaces[0].mNumIndices;
 
 			AEDrawElementsCommand newDraw;
 			newDraw.vertexCount = element_count;
@@ -78,15 +81,15 @@ void AEEngine::ConstructData(AEScene& scene)
 
 		// Allocate memory for array packing
 		import_data.vertex_data = new float[this_vertex_count * DrawList.vert_data_size];
-		import_data.indices_data = new unsigned int[this_indices_count];
+		import_data.indices_data = new uint32_t[this_indices_count];
 
 		import_data.vertex_data_start = import_data.vertex_data;
 		import_data.indices_data_start = import_data.indices_data;
 
 		// Pack vertex geometry data
-		for (unsigned int i(0); i < import->mNumMeshes; i++)
+		for (uint32_t i(0); i < import->mNumMeshes; i++)
 		{
-			for (unsigned int vert_id = 0; vert_id < import->mMeshes[i]->mNumVertices; vert_id++)
+			for (uint32_t vert_id = 0; vert_id < import->mMeshes[i]->mNumVertices; vert_id++)
 			{
 				// Position: vec4
 				*import_data.vertex_data = import->mMeshes[i]->mVertices[vert_id].x;
@@ -126,9 +129,9 @@ void AEEngine::ConstructData(AEScene& scene)
 			}
 
 			// Pack indices geometry data
-			for (unsigned int face_id = 0; face_id < import->mMeshes[i]->mNumFaces; face_id++)
+			for (uint32_t face_id = 0; face_id < import->mMeshes[i]->mNumFaces; face_id++)
 			{
-				for (unsigned int indice_id = 0; indice_id < import->mMeshes[i]->mFaces[face_id].mNumIndices; indice_id++)
+				for (uint32_t indice_id = 0; indice_id < import->mMeshes[i]->mFaces[face_id].mNumIndices; indice_id++)
 				{
 					*import_data.indices_data = import->mMeshes[i]->mFaces[face_id].mIndices[indice_id];
 					import_data.indices_data++;
@@ -148,21 +151,21 @@ void AEEngine::ConstructData(AEScene& scene)
 	DrawList.indices_count = indices_count;
 
 	DrawList.vertex_data = new float[vertex_count * DrawList.vert_data_size];
-	DrawList.indices_data = new unsigned int[indices_count];
+	DrawList.indices_data = new uint32_t[indices_count];
 	vertex_packed_start = DrawList.vertex_data;
 	indices_packed_start = DrawList.indices_data;
 
 	// Pack all data
-	for (unsigned int id(0); id < ImportedData.size(); id++)
+	for (uint32_t id(0); id < ImportedData.size(); id++)
 	{
-		unsigned int vertex_data_size = ImportedData[id].vertex_count * DrawList.vert_data_size;
-		for (unsigned int v_id(0); v_id < vertex_data_size; v_id++)
+		uint32_t vertex_data_size = ImportedData[id].vertex_count * DrawList.vert_data_size;
+		for (uint32_t v_id(0); v_id < vertex_data_size; v_id++)
 		{
 			*DrawList.vertex_data = ImportedData[id].vertex_data[v_id];
 			DrawList.vertex_data++;
 		}
 	
-		for (unsigned int i_id(0); i_id < ImportedData[id].indices_count; i_id++)
+		for (uint32_t i_id(0); i_id < ImportedData[id].indices_count; i_id++)
 		{
 			*DrawList.indices_data = ImportedData[id].indices_data[i_id];
 			DrawList.indices_data++;
@@ -179,68 +182,102 @@ void AEEngine::ConstructData(AEScene& scene)
 
 void AEEngine::CompileVAO()
 {
+	uint32_t flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
 	// Generate geometry buffers
-	glCreateVertexArrays(1, &VAO_Static);
+	glCreateVertexArrays(1, &VertexArrayObject);
 
-	glCreateBuffers(1, &VBO_Static);
-	glNamedBufferStorage(VBO_Static, DrawList.vertex_count * DrawList.stride_size, 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-	vertexArrayPtr = glMapNamedBufferRange(VBO_Static, 0, DrawList.vertex_count * DrawList.stride_size, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	glCreateBuffers(1, &VertexBufferObject);
+	glNamedBufferStorage(VertexBufferObject, DrawList.vertex_count * DrawList.stride_size, 0, flags);
+	vertexArrayPtr = glMapNamedBufferRange(VertexBufferObject, 0, DrawList.vertex_count * DrawList.stride_size, flags);
 
-	glCreateBuffers(1, &IBO_Static);
-	glNamedBufferStorage(IBO_Static, DrawList.indices_count * sizeof(unsigned int), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-	indicesArrayPtr = glMapNamedBufferRange(IBO_Static, 0, DrawList.indices_count * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	glCreateBuffers(1, &IndicesBufferObject);
+	glNamedBufferStorage(IndicesBufferObject, DrawList.indices_count * sizeof(uint32_t), 0, flags);
+	indicesArrayPtr = glMapNamedBufferRange(IndicesBufferObject, 0, DrawList.indices_count * sizeof(uint32_t), flags);
 
-	glCreateBuffers(1, &DIBO_Static);
-	glNamedBufferStorage(DIBO_Static, DrawList.IndexList.size() * sizeof(unsigned int), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-	drawIndexesPtr = glMapNamedBufferRange(DIBO_Static, 0, DrawList.IndexList.size() * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	glCreateBuffers(1, &DrawIndexObject);
+	glNamedBufferStorage(DrawIndexObject, DrawList.IndexList.size() * sizeof(uint32_t), 0, flags);
+	drawIndexesPtr = glMapNamedBufferRange(DrawIndexObject, 0, DrawList.IndexList.size() * sizeof(uint32_t), flags);
 
-	glVertexArrayVertexBuffer(VAO_Static, 0, VBO_Static, 0, 14 * sizeof(float));
-	glVertexArrayVertexBuffer(VAO_Static, 1, DIBO_Static, 0, sizeof(unsigned int));
-	glVertexArrayElementBuffer(VAO_Static, IBO_Static);
+	glVertexArrayVertexBuffer(VertexArrayObject, 0, VertexBufferObject, 0, 14 * sizeof(float));
+	glVertexArrayVertexBuffer(VertexArrayObject, 1, DrawIndexObject, 0, sizeof(uint32_t));
+	glVertexArrayElementBuffer(VertexArrayObject, IndicesBufferObject);
 
-	glEnableVertexArrayAttrib(VAO_Static, VAO_POSITION_LOCATION);
-	glEnableVertexArrayAttrib(VAO_Static, VAO_COLOR_LOCATION);
-	glEnableVertexArrayAttrib(VAO_Static, VAO_NORMAL_LOCATION);
-	glEnableVertexArrayAttrib(VAO_Static, VAO_TEXTURECOORD_LOCATION);
-	glEnableVertexArrayAttrib(VAO_Static, VAO_DRAWID_LOCATION);
+	glEnableVertexArrayAttrib(VertexArrayObject, VAO_POSITION_LOCATION);
+	glEnableVertexArrayAttrib(VertexArrayObject, VAO_COLOR_LOCATION);
+	glEnableVertexArrayAttrib(VertexArrayObject, VAO_NORMAL_LOCATION);
+	glEnableVertexArrayAttrib(VertexArrayObject, VAO_TEXTURECOORD_LOCATION);
+	glEnableVertexArrayAttrib(VertexArrayObject, VAO_DRAWID_LOCATION);
 
-	glVertexArrayAttribFormat(VAO_Static, VAO_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribFormat(VAO_Static, VAO_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float));
-	glVertexArrayAttribFormat(VAO_Static, VAO_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float));
-	glVertexArrayAttribFormat(VAO_Static, VAO_TEXTURECOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float));
-	glVertexArrayAttribIFormat(VAO_Static, VAO_DRAWID_LOCATION, 1, GL_UNSIGNED_INT, 0);
+	glVertexArrayAttribFormat(VertexArrayObject, VAO_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(VertexArrayObject, VAO_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float));
+	glVertexArrayAttribFormat(VertexArrayObject, VAO_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float));
+	glVertexArrayAttribFormat(VertexArrayObject, VAO_TEXTURECOORD_LOCATION, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float));
+	glVertexArrayAttribIFormat(VertexArrayObject, VAO_DRAWID_LOCATION, 1, GL_UNSIGNED_INT, 0);
 
-	glVertexArrayAttribBinding(VAO_Static, VAO_POSITION_LOCATION, 0);
-	glVertexArrayAttribBinding(VAO_Static, VAO_COLOR_LOCATION, 0);
-	glVertexArrayAttribBinding(VAO_Static, VAO_NORMAL_LOCATION, 0);
-	glVertexArrayAttribBinding(VAO_Static, VAO_TEXTURECOORD_LOCATION, 0);
-	glVertexArrayAttribBinding(VAO_Static, VAO_DRAWID_LOCATION, 1);
+	glVertexArrayAttribBinding(VertexArrayObject, VAO_POSITION_LOCATION, 0);
+	glVertexArrayAttribBinding(VertexArrayObject, VAO_COLOR_LOCATION, 0);
+	glVertexArrayAttribBinding(VertexArrayObject, VAO_NORMAL_LOCATION, 0);
+	glVertexArrayAttribBinding(VertexArrayObject, VAO_TEXTURECOORD_LOCATION, 0);
+	glVertexArrayAttribBinding(VertexArrayObject, VAO_DRAWID_LOCATION, 1);
 
-	glVertexArrayBindingDivisor(VAO_Static, 1, 1);
+	glVertexArrayBindingDivisor(VertexArrayObject, 1, 1);
 
-	// Additional buffers
-	glGenBuffers(1, &DCBO_Static);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, DCBO_Static);
-	glBufferStorage(GL_DRAW_INDIRECT_BUFFER, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-	drawCommandPtr = glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	// Draw command list buffer
+	glGenBuffers(1, &DrawCommandObject);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, DrawCommandObject);
+	glBufferStorage(GL_DRAW_INDIRECT_BUFFER, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), 0, flags);
+	drawCommandPtr = glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), flags);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+
+	glObjectLabel(GL_BUFFER, VertexArrayObject, -1, "Vertex Array Buffer");
+	glObjectLabel(GL_BUFFER, VertexBufferObject, -1, "Vertex Buffer");
+	glObjectLabel(GL_BUFFER, IndicesBufferObject, -1, "Indices Buffer");
+	glObjectLabel(GL_BUFFER, DrawIndexObject, -1, "Indirect Draw Buffer");
+	glObjectLabel(GL_BUFFER, DrawCommandObject, -1, "Draw Command Buffer");
+	
+}
+
+void AEEngine::CompileUBO()
+{
+	uint32_t flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
+	glGenBuffers(1, &GlobalParamsUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, GlobalParamsUBO);
+	glBufferStorage(GL_UNIFORM_BUFFER, sizeof(AEGlobalParameters), 0, flags);
+	globalParamsPtr = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(AEGlobalParameters), flags);
+	glBindBufferBase(GL_UNIFORM_BUFFER, UBO_GLOBAL_PARAMS_LOCATION, GlobalParamsUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void AEEngine::CompileSSBO()
+{
+	uint32_t flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
 	glGenBuffers(1, &ModelMatrixSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ModelMatrixSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, DrawList.MatrixList.size() * sizeof(glm::mat4), DrawList.MatrixList.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ModelMatrixSSBO);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, DrawList.MatrixList.size() * sizeof(glm::mat4), 0, flags);
+	modelMatrixPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, DrawList.MatrixList.size() * sizeof(glm::mat4), flags);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, SSBO_MODEL_MATRIX_LOCATION, ModelMatrixSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	std::memcpy(vertexArrayPtr, DrawList.vertex_data, DrawList.vertex_count * DrawList.stride_size);
-	std::memcpy(indicesArrayPtr, DrawList.indices_data, DrawList.indices_count * sizeof(unsigned int));
-	std::memcpy(drawIndexesPtr, DrawList.IndexList.data(), DrawList.IndexList.size() * sizeof(unsigned int));
-	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawElementsCommand));
-
-	glObjectLabel(GL_BUFFER, VAO_Static, -1, "Vertex Array Buffer");
-	glObjectLabel(GL_BUFFER, VBO_Static, -1, "Vertex Buffer");
-	glObjectLabel(GL_BUFFER, IBO_Static, -1, "Indices Buffer");
-	glObjectLabel(GL_BUFFER, DIBO_Static, -1, "Indirect Draw Buffer");
-	glObjectLabel(GL_BUFFER, DCBO_Static, -1, "Draw Command Buffer");
 	glObjectLabel(GL_BUFFER, ModelMatrixSSBO, -1, "Model Matrix SSBO");
+}
+
+void AEEngine::CopyData_GPU()
+{
+	// Unsafe if GPU is currently reading from data
+	std::memcpy(vertexArrayPtr, DrawList.vertex_data, DrawList.vertex_count * DrawList.stride_size);
+	std::memcpy(indicesArrayPtr, DrawList.indices_data, DrawList.indices_count * sizeof(uint32_t));
+	std::memcpy(drawIndexesPtr, DrawList.IndexList.data(), DrawList.IndexList.size() * sizeof(uint32_t));
+	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawElementsCommand));
+	std::memcpy(modelMatrixPtr, DrawList.MatrixList.data(), DrawList.MatrixList.size() * sizeof(glm::mat4));
+	std::memcpy(globalParamsPtr, &GlobalUBO, sizeof(AEGlobalParameters));
+}
+
+void AEEngine::UpdateUBO_GPU()
+{
+	std::memcpy(globalParamsPtr, &GlobalUBO, sizeof(AEGlobalParameters));
 }
 
 void AEEngine::Idle()
@@ -253,10 +290,12 @@ void AEEngine::Idle()
 
 void AEEngine::BindVAO()
 {
-	glBindVertexArray(VAO_Static);
+	glBindVertexArray(VertexArrayObject);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, DrawCommandObject);
 }
 
 void AEEngine::UnbindVAO()
 {
 	glBindVertexArray(0);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 }

@@ -1,10 +1,10 @@
 #shader vertex
 #version 450
 
-layout(location = 0) in vec4 position;
-layout(location = 1) in vec3 color;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 color;
 layout(location = 2) in vec3 normal;
-layout(location = 3) in vec2 texCoord;
+layout(location = 3) in vec3 texCoord;
 layout(location = 4) in uint drawid;
 
 layout(std140, binding = 0) uniform matBuffer
@@ -18,7 +18,7 @@ layout(std140, binding = 0) buffer modelMatrixBuffer
 };
 
 out vec4 FragPos;
-out vec3 VertColor;
+out vec4 VertColor;
 out vec3 NormalDir;
 out vec2 TextCoord;
 
@@ -26,16 +26,16 @@ void main()
 {
 	VertColor = color;
 	NormalDir = normal;
-	TextCoord = texCoord;
-	FragPos = matrix[drawid] * position;
-	gl_Position = CameraVPMatrix * matrix[drawid] * position;
+	TextCoord = texCoord.xy;
+	FragPos = matrix[drawid] * vec4(position, 1.0);
+	gl_Position = CameraVPMatrix * matrix[drawid] * vec4(position, 1.0);
 }
 
 #shader fragment
 #version 450
 
 in vec4 FragPos;
-in vec3 VertColor;
+in vec4 VertColor;
 in vec3 NormalDir;
 in vec2 TextCoord;
 

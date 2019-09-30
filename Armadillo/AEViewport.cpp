@@ -38,10 +38,10 @@ void AEViewport::CheckForExtesions(std::vector<const char*>& extensions)
 	for (std::vector<const char*>::iterator ext_itr = extensions.begin(); ext_itr != extensions.end(); ext_itr++)
 	{
 		if (glewIsSupported(*ext_itr) == GL_TRUE) {
-			std::cout << "Extension  SUPPORTED   " << *ext_itr << std::endl;
+			std::cout << "SUPPORTED   " << *ext_itr << std::endl;
 		}
 		else {
-			std::cout << "Extension  MISSING     " << *ext_itr << std::endl;
+			std::cout << "MISSING     " << *ext_itr << std::endl;
 		}
 	}
 

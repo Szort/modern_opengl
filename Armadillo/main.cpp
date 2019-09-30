@@ -1,13 +1,9 @@
-﻿//////////////////////////////////////
-//									//
-//			   Armadillo			//
-//	  Test ground for crazy idea.	//
-//									//
-//				Enjoy ;)			//
-//									//
-//		Author: Krzysztof Flisik	//
-//									//
-//////////////////////////////////////
+﻿/*====================================
+			   Armadillo
+	  Test ground for crazy idea.
+
+		Author: Krzysztof Flisik
+====================================*/
 
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
@@ -55,6 +51,9 @@ int main()
 	Scene.Import("./resources/meshes/Sponza/Sponza.gltf");
 	Scene.Import("./resources/meshes/BoxVertexColors.gltf");
 
+	//Engine.RenderBuffer.CreateRenderBuffer();
+	Engine.CompileVAO();
+
 	// Construct buffer data from imported meshes
 	Engine.ConstructData(Scene);
 
@@ -67,9 +66,6 @@ int main()
 	Viewport.currentCamera = &Camera;
 
 	// Compile geometry data
-	Engine.CompileVAO();
-	Engine.CompileUBO();
-	Engine.CompileSSBO();
 	Engine.CopyData_GPU();
 
 	// Loop until the user closes the window
@@ -96,7 +92,7 @@ int main()
 		Engine.BindVAO();
 
 		// Draw binded geometry and shader when in use
-		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)Engine.DrawList.CommandList.size(), 0);
+		Engine.DrawGeometry();
 
 		// Unbind resources when finished to mantain order
 		Engine.UnbindVAO();

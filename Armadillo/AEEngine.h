@@ -5,6 +5,7 @@
 #include "AEObject.h"
 #include "AEShader.h"
 #include "AEDiagnostics.h"
+#include "AERenderBuffer.h"
 
 #define VAO_POSITION_LOCATION			0
 #define	VAO_COLOR_LOCATION				1
@@ -87,16 +88,22 @@ public:
 	double				SleepTime;
 	AEDrawList			DrawList;
 	AEGlobalParameters	GlobalUBO;
+	AERenderBuffer		RenderBuffer;
 
 	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {};
 	~AEEngine() {};
 
 	void ConstructData(AEScene& scene);
 	void CompileVAO();
-	void CompileUBO();
-	void CompileSSBO();
+	void CreateDrawCommandBuffer();
+	void CreateVertexBuffer();
+	void CreateUniformBuffer();
+	void CreateShaderStorageBuffer();
+
 	void CopyData_GPU();
 	void UpdateUBO_GPU();
+
+	void DrawGeometry();
 	void BindVAO();
 	void UnbindVAO();
 	void Idle();

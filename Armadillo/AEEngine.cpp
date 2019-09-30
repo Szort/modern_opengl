@@ -149,24 +149,20 @@ void AEEngine::ConstructData(AEScene& scene)
 	}
 
 	std::cout << "Time packing: " << perf.GetTimer() << "ns" << std::endl;
+
+	CreateDrawCommandBuffer();
+	CreateVertexBuffer();
+	CreateUniformBuffer();
+	CreateShaderStorageBuffer();
 }
 
 void AEEngine::CompileVAO()
 {
 	// Generate geometry buffers
 	glCreateVertexArrays(1, &VertexArrayObject);
-
 	glCreateBuffers(1, &VertexBufferObject);
-	glNamedBufferStorage(VertexBufferObject, DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg), 0, flags);
-	vertexArrayPtr = glMapNamedBufferRange(VertexBufferObject, 0, DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg), flags);
-
 	glCreateBuffers(1, &IndicesBufferObject);
-	glNamedBufferStorage(IndicesBufferObject, DrawList.indices_data.size() * sizeof(uint32_t), 0, flags);
-	indicesArrayPtr = glMapNamedBufferRange(IndicesBufferObject, 0, DrawList.indices_data.size() * sizeof(uint32_t), flags);
-
 	glCreateBuffers(1, &DrawIndexObject);
-	glNamedBufferStorage(DrawIndexObject, DrawList.IndexList.size() * sizeof(uint32_t), 0, flags);
-	drawIndexesPtr = glMapNamedBufferRange(DrawIndexObject, 0, DrawList.IndexList.size() * sizeof(uint32_t), flags);
 
 	glVertexArrayVertexBuffer(VertexArrayObject, 0, VertexBufferObject, 0, sizeof(AEVertexArrayPackeg));
 	glVertexArrayVertexBuffer(VertexArrayObject, 1, DrawIndexObject, 0, sizeof(uint32_t));
@@ -192,19 +188,35 @@ void AEEngine::CompileVAO()
 
 	glVertexArrayBindingDivisor(VertexArrayObject, 1, 1);
 
+	glObjectLabel(GL_BUFFER, VertexArrayObject, -1, "Vertex Array Buffer");
+	glObjectLabel(GL_BUFFER, VertexBufferObject, -1, "Vertex Buffer");
+	glObjectLabel(GL_BUFFER, IndicesBufferObject, -1, "Indices Buffer");
+	glObjectLabel(GL_BUFFER, DrawIndexObject, -1, "Indirect Draw Buffer");
+}
+
+void AEEngine::CreateDrawCommandBuffer()
+{
 	// Draw command list buffer
 	glCreateBuffers(1, &DrawCommandObject);
 	glNamedBufferStorage(DrawCommandObject, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), 0, flags);
 	drawCommandPtr = glMapNamedBufferRange(DrawCommandObject, 0, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), flags);
 
-	glObjectLabel(GL_BUFFER, VertexArrayObject, -1, "Vertex Array Buffer");
-	glObjectLabel(GL_BUFFER, VertexBufferObject, -1, "Vertex Buffer");
-	glObjectLabel(GL_BUFFER, IndicesBufferObject, -1, "Indices Buffer");
-	glObjectLabel(GL_BUFFER, DrawIndexObject, -1, "Indirect Draw Buffer");
 	glObjectLabel(GL_BUFFER, DrawCommandObject, -1, "Draw Command Buffer");
 }
 
-void AEEngine::CompileUBO()
+void AEEngine::CreateVertexBuffer()
+{
+	glNamedBufferStorage(VertexBufferObject, DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg), 0, flags);
+	vertexArrayPtr = glMapNamedBufferRange(VertexBufferObject, 0, DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg), flags);
+
+	glNamedBufferStorage(IndicesBufferObject, DrawList.indices_data.size() * sizeof(uint32_t), 0, flags);
+	indicesArrayPtr = glMapNamedBufferRange(IndicesBufferObject, 0, DrawList.indices_data.size() * sizeof(uint32_t), flags);
+
+	glNamedBufferStorage(DrawIndexObject, DrawList.IndexList.size() * sizeof(uint32_t), 0, flags);
+	drawIndexesPtr = glMapNamedBufferRange(DrawIndexObject, 0, DrawList.IndexList.size() * sizeof(uint32_t), flags);
+}
+
+void AEEngine::CreateUniformBuffer()
 {
 	// No direct state access functionality for UBO but we map buffer in perssistent way.
 	glGenBuffers(1, &GlobalParamsUBO);
@@ -217,7 +229,7 @@ void AEEngine::CompileUBO()
 	glObjectLabel(GL_BUFFER, GlobalParamsUBO, -1, "Global Parameters Buffer");
 }
 
-void AEEngine::CompileSSBO()
+void AEEngine::CreateShaderStorageBuffer()
 {
 	if (ModelMatrixSSBO != 0)
 	{
@@ -261,6 +273,11 @@ void AEEngine::Idle()
 	SleepTime = (1000 / FpsCap) - RenderTime;
 	SleepTime = SleepTime < 0 ? 0 : SleepTime;
 	Sleep(SleepTime);
+}
+
+void AEEngine::DrawGeometry()
+{
+	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)DrawList.CommandList.size(), 0);
 }
 
 void AEEngine::BindVAO()

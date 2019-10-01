@@ -1,10 +1,12 @@
+#include "AEEngine.h"
+
 // Needed for Assimp import objects
 #include <assimp/Importer.hpp>
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "AEEngine.h"
+#include "AEDiagnostics.h"
 
 void AEEngine::ConstructData(AEScene& scene)
 {

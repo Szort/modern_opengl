@@ -1,10 +1,6 @@
 #pragma once
 
-#include "GL/glew.h"
-#include <GLFW/glfw3.h>
-
-#include "AEScene.h"
-#include "AEShader.h"
+#include "AECamera.h"
 
 class AEViewport
 {

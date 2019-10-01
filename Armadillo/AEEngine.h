@@ -1,11 +1,7 @@
 #pragma once
 
-#include <vector>
-#include "AEScene.h"
 #include "AEObject.h"
-#include "AEShader.h"
-#include "AEDiagnostics.h"
-#include "AERenderBuffer.h"
+#include "AEScene.h"
 
 #define VAO_POSITION_LOCATION			0
 #define	VAO_COLOR_LOCATION				1
@@ -61,8 +57,6 @@ struct AEGlobalParameters
 
 class AEEngine
 {
-	std::vector<AEShader>	Shaders;
-
 	// Need to construct for static and dynamic objects
 	uint32_t			VertexArrayObject;
 	uint32_t			VertexBufferObject;
@@ -88,7 +82,6 @@ public:
 	double				SleepTime;
 	AEDrawList			DrawList;
 	AEGlobalParameters	GlobalUBO;
-	AERenderBuffer		RenderBuffer;
 
 	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {};
 	~AEEngine() {};

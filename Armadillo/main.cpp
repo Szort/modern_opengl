@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <algorithm>
 
+#include "AEShader.h"
 #include "AEViewport.h"
 #include "AEGui.h"
 #include "AEEngine.h"
@@ -83,6 +84,8 @@ int main()
 		glClearColor(GUI.clear_color.x, GUI.clear_color.y, GUI.clear_color.z, GUI.clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//Engine.RenderBuffer.BindRenderBuffer();
+
 		// Update data before rendering
 		Engine.GlobalUBO.CameraVPMatrix = Camera.GetVPMatrix();
 		Engine.UpdateUBO_GPU();
@@ -96,6 +99,8 @@ int main()
 
 		// Unbind resources when finished to mantain order
 		Engine.UnbindVAO();
+
+		//Engine.RenderBuffer.UnbindRenderBuffer();
 
 		GUI.Draw(Viewport, Engine);
 		Engine.Idle();

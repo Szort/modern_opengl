@@ -28,7 +28,7 @@ void main()
 	NormalDir = normal;
 	TextCoord = texCoord.xy;
 	FragPos = matrix[drawid] * vec4(position, 1.0);
-	gl_Position = CameraVPMatrix * matrix[drawid] * vec4(position, 1.0);
+	gl_Position = CameraVPMatrix * FragPos;
 }
 
 #shader fragment

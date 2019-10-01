@@ -34,6 +34,9 @@ void main()
 #shader fragment
 #version 450
 
+layout(location = 0) out vec3 color;
+layout(location = 1) out vec3 normal;
+
 in vec4 FragPos;
 in vec4 VertColor;
 in vec3 NormalDir;
@@ -50,7 +53,8 @@ void main()
 	
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * lightColor;
-	
 	vec3 result = ambient + diffuse;
-	gl_FragColor = vec4(result, 1.0);
+
+	normal = norm;
+	color = result;
 }

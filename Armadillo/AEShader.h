@@ -38,8 +38,8 @@ public:
 
 	ShadersStringData* ShaderParser(std::string file_name);
 	void ShaderCompile(std::string file_name);
-	void BindShader();
-	void UnbindShader();
+	void Bind();
+	void Unbind();
 
 	unsigned int program_id;
 };

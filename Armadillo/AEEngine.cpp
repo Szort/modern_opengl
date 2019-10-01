@@ -177,7 +177,7 @@ void AEEngine::CompileVAO()
 	glEnableVertexArrayAttrib(VertexArrayObject, VAO_DRAWID_LOCATION);
 
 	glVertexArrayAttribFormat(VertexArrayObject, VAO_POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribFormat(VertexArrayObject, VAO_COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+	glVertexArrayAttribFormat(VertexArrayObject, VAO_COLOR_LOCATION, 4, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
 	glVertexArrayAttribFormat(VertexArrayObject, VAO_NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float));
 	glVertexArrayAttribFormat(VertexArrayObject, VAO_TEXTURECOORD_LOCATION, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float));
 	glVertexArrayAttribIFormat(VertexArrayObject, VAO_DRAWID_LOCATION, 1, GL_UNSIGNED_INT, 0);

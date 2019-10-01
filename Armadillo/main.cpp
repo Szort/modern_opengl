@@ -20,6 +20,8 @@
 #include "AEGui.h"
 #include "AEEngine.h"
 #include "AEScene.h"
+#include "AEFrameBuffer.h"
+
 
 std::vector<const char*> extensions = {
 	"GL_ARB_bindless_texture",
@@ -41,11 +43,15 @@ int main()
 	Viewport.CheckForExtesions(extensions);
 
 	// Global resources
-	AEEngine	Engine;
-	AEScene		Scene;
-	AECamera	Camera;
-	AEGui		GUI;
+	AEFrameBuffer	FrameImage;
+	AEEngine		Engine;
+	AEScene			Scene;
+	AECamera		Camera;
+	AEGui			GUI;
 
+	FrameImage.CreateFrameBuffer();
+
+	// Add camera to scene
 	Scene.Add(Camera);
 
 	// Import assets
@@ -59,8 +65,9 @@ int main()
 	Engine.ConstructData(Scene);
 
 	// Compile shaders
-	AEShader Shader;
-	Shader.ShaderCompile("basic.glsl");
+	AEShader Shader_Basic, Shader_Show;
+	Shader_Basic.ShaderCompile("basic.glsl");
+	Shader_Show.ShaderCompile("show.glsl");
 
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
@@ -84,14 +91,15 @@ int main()
 		glClearColor(GUI.clear_color.x, GUI.clear_color.y, GUI.clear_color.z, GUI.clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//Engine.RenderBuffer.BindRenderBuffer();
-
 		// Update data before rendering
 		Engine.GlobalUBO.CameraVPMatrix = Camera.GetVPMatrix();
 		Engine.UpdateUBO_GPU();
 
+		// Bind framebuffer to render
+		FrameImage.BindForDraw();
+
 		// Bind resources
-		Shader.BindShader();
+		Shader_Basic.Bind();
 		Engine.BindVAO();
 
 		// Draw binded geometry and shader when in use
@@ -99,8 +107,7 @@ int main()
 
 		// Unbind resources when finished to mantain order
 		Engine.UnbindVAO();
-
-		//Engine.RenderBuffer.UnbindRenderBuffer();
+		FrameImage.Unbind();
 
 		GUI.Draw(Viewport, Engine);
 		Engine.Idle();

@@ -174,7 +174,7 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
   <ItemGroup>
     <ClCompile Include="AEEngine.cpp" />
     <ClCompile Include="AEGui.cpp" />
-    <ClCompile Include="AERenderBuffer.cpp" />
+    <ClCompile Include="AEFrameBuffer.cpp" />
     <ClCompile Include="AEScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AEMesh.cpp" />
@@ -197,7 +197,7 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <ClInclude Include="AEDiagnostics.h" />
     <ClInclude Include="AEMesh.h" />
     <ClInclude Include="AELight.h" />
-    <ClInclude Include="AERenderBuffer.h" />
+    <ClInclude Include="AEFrameBuffer.h" />
     <ClInclude Include="AEScene.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -219,6 +219,7 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <None Include="resources\meshes\Triangle.gltf" />
     <None Include="resources\meshes\triangleWithoutIndices.bin" />
     <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
+    <None Include="resources\shaders\show.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

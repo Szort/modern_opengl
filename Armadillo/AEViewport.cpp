@@ -1,9 +1,8 @@
 #include "AEViewport.h"
-
 #include <iostream>
 
 // Init renderer window
-AEViewport::AEViewport(bool& complete, int view_x, int view_y)
+AEViewport::AEViewport(bool& complete, uint32_t view_x, uint32_t view_y)
 {
 	// Initialize the library
 	if (!glfwInit())
@@ -30,6 +29,8 @@ AEViewport::AEViewport(bool& complete, int view_x, int view_y)
 		std::cout << "Error in GLEW initialization!" << std::endl;
 		complete = false;
 	}
+
+	size = glm::ivec2(view_x, view_y);
 
 	complete = true;
 }
@@ -69,9 +70,4 @@ void AEViewport::ProcessInput()
 void AEViewport::Destroy()
 {
 	glfwTerminate();
-}
-
-GLFWwindow* AEViewport::GetWindow()
-{
-	return window;
 }

@@ -34,7 +34,7 @@ public:
 	bool			Visible;
 
 	AEObject() : ModelMatrix(glm::mat4(1.0f)) {};
-	~AEObject() {};
+	virtual ~AEObject() {};
 
 	AEObjectType GetObjType() { return ObjectType; };
 

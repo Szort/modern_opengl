@@ -4,22 +4,22 @@
 
 #include "AEFrameBuffer.h"
 
-void AEFrameBuffer::CreateFrameBuffer()
+void AEFrameBuffer::CreateFrameBuffer(AEViewport& viewport)
 {
 	glCreateFramebuffers(1, &framebuffer);
 	glCreateTextures(GL_TEXTURE_2D, 1, &color_texture);
 	glCreateTextures(GL_TEXTURE_2D, 1, &normal_texture);
 	glCreateTextures(GL_TEXTURE_2D, 1, &depth_texture);
 
-	glTextureStorage2D(color_texture, 1, GL_RGB8, 1280, 720);
+	glTextureStorage2D(color_texture, 1, GL_RGB8, viewport.GetSize()->x, viewport.GetSize()->y);
 	glTextureParameteri(color_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(color_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(normal_texture, 1, GL_RGB8, 1280, 720);
+	glTextureStorage2D(normal_texture, 1, GL_RGB8, viewport.GetSize()->x, viewport.GetSize()->y);
 	glTextureParameteri(normal_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(normal_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(depth_texture, 1, GL_DEPTH_COMPONENT24, 1280, 720);
+	glTextureStorage2D(depth_texture, 1, GL_DEPTH_COMPONENT24, viewport.GetSize()->x, viewport.GetSize()->y);
 	glTextureParameteri(depth_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(depth_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -54,6 +54,7 @@ void AEFrameBuffer::BindForDraw()
 void AEFrameBuffer::BindForRead()
 {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
 void AEFrameBuffer::Unbind()

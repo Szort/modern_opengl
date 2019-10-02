@@ -97,6 +97,7 @@ public:
 	void UpdateUBO_GPU();
 
 	void DrawGeometry();
+	void DrawQuad();
 	void BindVAO();
 	void UnbindVAO();
 	void Idle();

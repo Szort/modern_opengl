@@ -49,19 +49,24 @@ int main()
 	AECamera		Camera;
 	AEGui			GUI;
 
-	FrameImage.CreateFrameBuffer();
+	AEPrimitive		Plane(eAE_PrimitiveType_Plane);
+
+	// Get current cam for viewport
+	Viewport.currentCamera = &Camera;
 
 	// Add camera to scene
 	Scene.Add(Camera);
 
 	// Import assets
-	Scene.Import("./resources/meshes/Sponza/Sponza.gltf");
-	Scene.Import("./resources/meshes/BoxVertexColors.gltf");
+	Scene.Add(Plane);
+	Scene.ImportAsset("./resources/meshes/Sponza/Sponza.gltf");
+	Scene.ImportAsset("./resources/meshes/BoxVertexColors.gltf");
 
-	//Engine.RenderBuffer.CreateRenderBuffer();
-	Engine.CompileVAO();
+	// Create GBuffer
+	FrameImage.CreateFrameBuffer(Viewport);
 
 	// Construct buffer data from imported meshes
+	Engine.CompileVAO();
 	Engine.ConstructData(Scene);
 
 	// Compile shaders
@@ -71,7 +76,6 @@ int main()
 
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
-	Viewport.currentCamera = &Camera;
 
 	// Compile geometry data
 	Engine.CopyData_GPU();
@@ -98,16 +102,23 @@ int main()
 		// Bind framebuffer to render
 		FrameImage.BindForDraw();
 
-		// Bind resources
-		Shader_Basic.Bind();
 		Engine.BindVAO();
 
-		// Draw binded geometry and shader when in use
+		// Draw binded geometry in first pass for GBuffer
+		Shader_Basic.Bind();
 		Engine.DrawGeometry();
+
+		// Bind GBuffer textures for now but in the end pass texture handles to draw command
+		glBindTextureUnit(0, FrameImage.GetColor());
+		glBindTextureUnit(1, FrameImage.GetNormal());
+
+		// Draw full screen quad with GBuffer textures
+		Shader_Show.Bind();
+		FrameImage.Unbind();
+		Engine.DrawQuad();
 
 		// Unbind resources when finished to mantain order
 		Engine.UnbindVAO();
-		FrameImage.Unbind();
 
 		GUI.Draw(Viewport, Engine);
 		Engine.Idle();

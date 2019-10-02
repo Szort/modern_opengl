@@ -8,8 +8,7 @@
 class AEScene
 {
 public:
-	std::vector<std::string>	ImportList;
-
+	std::vector<std::string>	AssetPaths;
 	std::vector<AECamera>		Cameras;
 	std::vector<AELight>		Lights;
 	std::vector<AEPrimitive>	Primitives;
@@ -18,7 +17,7 @@ public:
 	AEScene() {};
 	~AEScene() {};
 
-	bool Import(std::string objFiled);
+	void ImportAsset(std::string objFiled);
 
 	void Add(AECamera& object)
 	{

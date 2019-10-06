@@ -59,7 +59,6 @@ void AEViewport::ProcessInput()
 	{
 		currentCamera->ProcessKeyboard(window);
 		currentCamera->ProcessMouse(window);
-
 		currentCamera->ComputeViewMatrix();
 	}
 	else {

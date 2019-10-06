@@ -30,7 +30,9 @@ std::vector<const char*> extensions = {
 	"GL_ARB_indirect_parameters",
 	"GL_ARB_map_buffer_range",
 	"GL_ARB_shader_draw_parameters",
-	"GL_ARB_sync"
+	"GL_ARB_sync",
+	"GL_ARB_gpu_shader_int64",
+	"GL_ARB_sparse_texture"
 };
 
 int main()
@@ -109,8 +111,8 @@ int main()
 		Engine.DrawGeometry();
 
 		// Bind GBuffer textures for now but in the end pass texture handles to draw command
-		glBindTextureUnit(0, FrameImage.GetColor());
-		glBindTextureUnit(1, FrameImage.GetNormal());
+		glBindTextureUnit(0, FrameImage.GetTexture(eAE_GBuffer_Albedo));
+		glBindTextureUnit(1, FrameImage.GetTexture(eAE_GBuffer_Normal));
 
 		// Draw full screen quad with GBuffer textures
 		Shader_Show.Bind();

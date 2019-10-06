@@ -7,25 +7,23 @@
 void AEFrameBuffer::CreateFrameBuffer(AEViewport& viewport)
 {
 	glCreateFramebuffers(1, &framebuffer);
-	glCreateTextures(GL_TEXTURE_2D, 1, &color_texture);
-	glCreateTextures(GL_TEXTURE_2D, 1, &normal_texture);
-	glCreateTextures(GL_TEXTURE_2D, 1, &depth_texture);
+	glCreateTextures(GL_TEXTURE_2D, eAE_GBuffer_Count, &textures[0]);
 
-	glTextureStorage2D(color_texture, 1, GL_RGB8, viewport.GetSize()->x, viewport.GetSize()->y);
-	glTextureParameteri(color_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTextureParameteri(color_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTextureStorage2D(textures[eAE_GBuffer_Albedo], 1, GL_RGB8, viewport.GetSize()->x, viewport.GetSize()->y);
+	glTextureParameteri(textures[eAE_GBuffer_Albedo], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(textures[eAE_GBuffer_Albedo], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(normal_texture, 1, GL_RGB8, viewport.GetSize()->x, viewport.GetSize()->y);
-	glTextureParameteri(normal_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTextureParameteri(normal_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTextureStorage2D(textures[eAE_GBuffer_Normal], 1, GL_RGB8, viewport.GetSize()->x, viewport.GetSize()->y);
+	glTextureParameteri(textures[eAE_GBuffer_Normal], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(textures[eAE_GBuffer_Normal], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(depth_texture, 1, GL_DEPTH_COMPONENT24, viewport.GetSize()->x, viewport.GetSize()->y);
-	glTextureParameteri(depth_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTextureParameteri(depth_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTextureStorage2D(textures[eAE_GBuffer_Depth], 1, GL_DEPTH_COMPONENT24, viewport.GetSize()->x, viewport.GetSize()->y);
+	glTextureParameteri(textures[eAE_GBuffer_Depth], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(textures[eAE_GBuffer_Depth], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glNamedFramebufferTexture(framebuffer, GL_COLOR_ATTACHMENT0, color_texture, 0);
-	glNamedFramebufferTexture(framebuffer, GL_COLOR_ATTACHMENT1, normal_texture, 0);
-	glNamedFramebufferTexture(framebuffer, GL_DEPTH_ATTACHMENT, depth_texture, 0);
+	glNamedFramebufferTexture(framebuffer, GL_COLOR_ATTACHMENT0, textures[eAE_GBuffer_Albedo], 0);
+	glNamedFramebufferTexture(framebuffer, GL_COLOR_ATTACHMENT1, textures[eAE_GBuffer_Normal], 0);
+	glNamedFramebufferTexture(framebuffer, GL_DEPTH_ATTACHMENT, textures[eAE_GBuffer_Depth], 0);
 
 	unsigned int DrawAttachemnts[2] = {
 		GL_COLOR_ATTACHMENT0,
@@ -40,9 +38,9 @@ void AEFrameBuffer::CreateFrameBuffer(AEViewport& viewport)
 	}
 
 	glObjectLabel(GL_FRAMEBUFFER, framebuffer, -1, "GBuffer Framebuffer");
-	glObjectLabel(GL_TEXTURE, color_texture, -1, "GBuffer Color");
-	glObjectLabel(GL_TEXTURE, normal_texture, -1, "GBuffer Normal");
-	glObjectLabel(GL_TEXTURE, depth_texture, -1, "GBuffer Depth");
+	glObjectLabel(GL_TEXTURE, textures[eAE_GBuffer_Albedo], -1, "GBuffer Color");
+	glObjectLabel(GL_TEXTURE, textures[eAE_GBuffer_Normal], -1, "GBuffer Normal");
+	glObjectLabel(GL_TEXTURE, textures[eAE_GBuffer_Depth], -1, "GBuffer Depth");
 }
 
 void AEFrameBuffer::BindForDraw()

@@ -2,6 +2,7 @@
 
 #include "AEObject.h"
 #include "AEScene.h"
+#include "AEFrameBuffer.h"
 
 #define VAO_POSITION_LOCATION			0
 #define	VAO_COLOR_LOCATION				1

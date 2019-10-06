@@ -7,9 +7,9 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec3 texCoord;
 layout(location = 4) in uint drawid;
 
-layout(std140, binding = 0) uniform matBuffer
+layout(binding = 0) uniform globalBuffer
 {
-    mat4 CameraVPMatrix;
+    mat4		CameraVPMatrix;
 };
 
 layout(std140, binding = 0) buffer modelMatrixBuffer

@@ -2,12 +2,18 @@
 
 #include "AEViewport.h"
 
+enum AEGBufferTexture
+{
+	eAE_GBuffer_Albedo,
+	eAE_GBuffer_Normal,
+	eAE_GBuffer_Depth,
+	eAE_GBuffer_Count
+};
+
 class AEFrameBuffer
 {
-	uint32_t framebuffer;
-	uint32_t color_texture;
-	uint32_t normal_texture;
-	uint32_t depth_texture;
+	uint32_t	framebuffer;
+	uint32_t	textures[eAE_GBuffer_Count];
 
 public:
 
@@ -16,6 +22,5 @@ public:
 	void BindForRead();
 	void Unbind();
 
-	uint32_t GetColor() { return color_texture; };
-	uint32_t GetNormal() { return normal_texture; };
+	uint32_t GetTexture(AEGBufferTexture id) { return textures[id]; };
 };

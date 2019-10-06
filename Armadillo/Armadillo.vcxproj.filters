@@ -57,6 +57,9 @@
     <ClCompile Include="AEScene.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="AEFrameBuffer.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GL\glew.h">
@@ -122,6 +125,9 @@
     <ClInclude Include="AEMesh.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
+    <ClInclude Include="AEFrameBuffer.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\basic.glsl" />
@@ -134,5 +140,6 @@
       <Filter>Pliki zasobów</Filter>
     </None>
     <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
+    <None Include="resources\shaders\show.glsl" />
   </ItemGroup>
 </Project>

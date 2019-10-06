@@ -1,13 +1,9 @@
-﻿//////////////////////////////////////
-//									//
-//			   Armadillo			//
-//	  Test ground for crazy idea.	//
-//									//
-//				Enjoy ;)			//
-//									//
-//		Author: Krzysztof Flisik	//
-//									//
-//////////////////////////////////////
+﻿/*====================================
+			   Armadillo
+	  Test ground for crazy idea.
+
+		Author: Krzysztof Flisik
+====================================*/
 
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
@@ -19,10 +15,13 @@
 #include <stdlib.h>
 #include <algorithm>
 
+#include "AEShader.h"
 #include "AEViewport.h"
 #include "AEGui.h"
 #include "AEEngine.h"
 #include "AEScene.h"
+#include "AEFrameBuffer.h"
+
 
 std::vector<const char*> extensions = {
 	"GL_ARB_bindless_texture",
@@ -31,7 +30,9 @@ std::vector<const char*> extensions = {
 	"GL_ARB_indirect_parameters",
 	"GL_ARB_map_buffer_range",
 	"GL_ARB_shader_draw_parameters",
-	"GL_ARB_sync"
+	"GL_ARB_sync",
+	"GL_ARB_gpu_shader_int64",
+	"GL_ARB_sparse_texture"
 };
 
 int main()
@@ -44,32 +45,41 @@ int main()
 	Viewport.CheckForExtesions(extensions);
 
 	// Global resources
-	AEEngine	Engine;
-	AEScene		Scene;
-	AECamera	Camera;
-	AEGui		GUI;
+	AEFrameBuffer	FrameImage;
+	AEEngine		Engine;
+	AEScene			Scene;
+	AECamera		Camera;
+	AEGui			GUI;
 
+	AEPrimitive		Plane(eAE_PrimitiveType_Plane);
+
+	// Get current cam for viewport
+	Viewport.currentCamera = &Camera;
+
+	// Add camera to scene
 	Scene.Add(Camera);
 
 	// Import assets
-	Scene.Import("./resources/meshes/Sponza/Sponza.gltf");
-	Scene.Import("./resources/meshes/BoxVertexColors.gltf");
+	Scene.Add(Plane);
+	Scene.ImportAsset("./resources/meshes/Sponza/Sponza.gltf");
+	Scene.ImportAsset("./resources/meshes/BoxVertexColors.gltf");
+
+	// Create GBuffer
+	FrameImage.CreateFrameBuffer(Viewport);
 
 	// Construct buffer data from imported meshes
+	Engine.CompileVAO();
 	Engine.ConstructData(Scene);
 
 	// Compile shaders
-	AEShader Shader;
-	Shader.ShaderCompile("basic.glsl");
+	AEShader Shader_Basic, Shader_Show;
+	Shader_Basic.ShaderCompile("basic.glsl");
+	Shader_Show.ShaderCompile("show.glsl");
 
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
-	Viewport.currentCamera = &Camera;
 
 	// Compile geometry data
-	Engine.CompileVAO();
-	Engine.CompileUBO();
-	Engine.CompileSSBO();
 	Engine.CopyData_GPU();
 
 	// Loop until the user closes the window
@@ -91,12 +101,23 @@ int main()
 		Engine.GlobalUBO.CameraVPMatrix = Camera.GetVPMatrix();
 		Engine.UpdateUBO_GPU();
 
-		// Bind resources
-		Shader.BindShader();
+		// Bind framebuffer to render
+		FrameImage.BindForDraw();
+
 		Engine.BindVAO();
 
-		// Draw binded geometry and shader when in use
-		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)Engine.DrawList.CommandList.size(), 0);
+		// Draw binded geometry in first pass for GBuffer
+		Shader_Basic.Bind();
+		Engine.DrawGeometry();
+
+		// Bind GBuffer textures for now but in the end pass texture handles to draw command
+		glBindTextureUnit(0, FrameImage.GetTexture(eAE_GBuffer_Albedo));
+		glBindTextureUnit(1, FrameImage.GetTexture(eAE_GBuffer_Normal));
+
+		// Draw full screen quad with GBuffer textures
+		Shader_Show.Bind();
+		FrameImage.Unbind();
+		Engine.DrawQuad();
 
 		// Unbind resources when finished to mantain order
 		Engine.UnbindVAO();

@@ -1,7 +1,8 @@
 #include "AEViewport.h"
+#include <iostream>
 
 // Init renderer window
-AEViewport::AEViewport(bool& complete, int view_x, int view_y)
+AEViewport::AEViewport(bool& complete, uint32_t view_x, uint32_t view_y)
 {
 	// Initialize the library
 	if (!glfwInit())
@@ -29,6 +30,8 @@ AEViewport::AEViewport(bool& complete, int view_x, int view_y)
 		complete = false;
 	}
 
+	size = glm::ivec2(view_x, view_y);
+
 	complete = true;
 }
 
@@ -38,10 +41,10 @@ void AEViewport::CheckForExtesions(std::vector<const char*>& extensions)
 	for (std::vector<const char*>::iterator ext_itr = extensions.begin(); ext_itr != extensions.end(); ext_itr++)
 	{
 		if (glewIsSupported(*ext_itr) == GL_TRUE) {
-			std::cout << "Extension  SUPPORTED   " << *ext_itr << std::endl;
+			std::cout << "SUPPORTED   " << *ext_itr << std::endl;
 		}
 		else {
-			std::cout << "Extension  MISSING     " << *ext_itr << std::endl;
+			std::cout << "MISSING     " << *ext_itr << std::endl;
 		}
 	}
 
@@ -56,7 +59,6 @@ void AEViewport::ProcessInput()
 	{
 		currentCamera->ProcessKeyboard(window);
 		currentCamera->ProcessMouse(window);
-
 		currentCamera->ComputeViewMatrix();
 	}
 	else {
@@ -67,9 +69,4 @@ void AEViewport::ProcessInput()
 void AEViewport::Destroy()
 {
 	glfwTerminate();
-}
-
-GLFWwindow* AEViewport::GetWindow()
-{
-	return window;
 }

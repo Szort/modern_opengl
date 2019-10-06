@@ -3,7 +3,7 @@
 
 #include "AEScene.h"
 
-bool AEScene::Import(std::string objFile)
+void AEScene::ImportAsset(std::string objFile)
 {
 	// Determin if file exist
 	std::ifstream fin(objFile.c_str());
@@ -11,12 +11,10 @@ bool AEScene::Import(std::string objFile)
 		fin.close();
 
 		// Push to list of existing file if file exist
-		ImportList.push_back(objFile);
-		return true;
+		AssetPaths.push_back(objFile);
 	}
 	else {
 		std::cout << "No import!" << std::endl;
 		std::cin.get();
-		return false;
 	}
 }

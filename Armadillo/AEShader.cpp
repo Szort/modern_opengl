@@ -126,12 +126,12 @@ void AEShader::ShaderCompile(std::string file_name)
 	std::cout << "Program ID: " << program_id << std::endl;
 }
 
-void AEShader::BindShader()
+void AEShader::Bind()
 {
 	glUseProgram(program_id);
 }
 
-void AEShader::UnbindShader()
+void AEShader::Unbind()
 {
 	glUseProgram(0);
 }

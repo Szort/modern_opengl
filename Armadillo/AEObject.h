@@ -1,13 +1,13 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
-#include <string>
 
 // Type of object list
 enum AEObjectType
@@ -18,35 +18,6 @@ enum AEObjectType
 	eAE_ObjectType_Camera,
 	eAE_ObjectType_ReflectionProbe,
 	eAE_ObjectType_Null
-};
-
-struct AEDrawElementsCommand
-{
-	unsigned int vertexCount;
-	unsigned int instanceCount;
-	unsigned int firstIndex;
-	unsigned int baseVertex;
-	unsigned int baseInstance;
-};
-
-struct AEDrawList
-{
-	// Data aligment
-	unsigned int vert_data_size = 14;
-	unsigned int stride_size = vert_data_size * sizeof(float);
-
-	// Paced data
-	float* vertex_data;
-	unsigned int* indices_data;
-
-	// Track data size
-	unsigned int vertex_count;
-	unsigned int indices_count;
-
-	// Indirect draw command lists
-	std::vector<AEDrawElementsCommand>	CommandList;
-	std::vector<unsigned int>			IndexList;
-	std::vector<glm::mat4>				MatrixList;
 };
 
 // Base hierarhical object
@@ -63,7 +34,7 @@ public:
 	bool			Visible;
 
 	AEObject() : ModelMatrix(glm::mat4(1.0f)) {};
-	~AEObject() {};
+	virtual ~AEObject() {};
 
 	AEObjectType GetObjType() { return ObjectType; };
 

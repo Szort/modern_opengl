@@ -11,6 +11,7 @@ class AECamera : public AEObject
 	glm::mat4 ViewProjectionMatrix;
 
 	float Speed;
+	float SpeedRotation;
 	float Yaw;
 	float Pitch;
 
@@ -30,13 +31,14 @@ public:
 
 	AECamera():
 		FieldOfView(glm::radians(60.0f)), NearClip(0.1f), FarClip(1000.0f), Resolution(glm::vec2(1280.0f, 720.0f)),
-		Direction(glm::vec3(0, 0, -1)), UpAxis(glm::vec3(0, 1, 0)),
-		Speed(0.2f), Yaw(180.0f), Pitch(0.0f),
+		Direction(glm::vec3(-1, 0, 0)), UpAxis(glm::vec3(0, 1, 0)),
+		Speed(0.2f), SpeedRotation(0.005f), Pitch(0.0f),
 		MouseLast_X(0), MouseLast_Y(0), MouseCurrent_X(0), MouseCurrent_Y(0)
 	{
 		SetObjType(eAE_ObjectType_Camera);
-		
-		Position = glm::vec3(0, 0, 5);
+
+		Yaw = DirToYaw(Direction);
+		Position = glm::vec3(5, 2, 0);
 		ComputeViewMatrix();
 	};
 	~AECamera() {};
@@ -79,22 +81,22 @@ public:
 
 	void ProcessMouse(GLFWwindow* window)
 	{
-		float Offset_X = (float)(MouseLast_X - MouseCurrent_X) * Speed;
-		float Offset_Y = (float)(MouseLast_Y - MouseCurrent_Y) * Speed; // reversed since y-coordinates range from bottom to top
+		float Offset_X = (float)(MouseLast_X - MouseCurrent_X) * SpeedRotation;
+		float Offset_Y = (float)(MouseLast_Y - MouseCurrent_Y) * SpeedRotation; // reversed since y-coordinates range from bottom to top
 		StoreMousePosition();
 
-		Yaw += Offset_X;
+		Yaw -= Offset_X;
 		Pitch += Offset_Y;
 
-		if (Pitch > 89.0f)
-			Pitch = 89.0f;
-		if (Pitch < -89.0f)
-			Pitch = -89.0f;
+		if (Pitch > 1.55334f)
+			Pitch = 1.55334f;
+		if (Pitch < -1.55334f)
+			Pitch = -1.55334f;
 
 		glm::vec3 direction(
-			cos(glm::radians(Pitch)) * sin(glm::radians(Yaw)),
-			sin(glm::radians(Pitch)),
-			cos(glm::radians(Pitch)) * cos(glm::radians(Yaw))
+			cos(Pitch) * sin(-Yaw),
+			sin(Pitch),
+			cos(Pitch) * cos(Yaw)
 		);
 
 		Direction = glm::normalize(direction);
@@ -105,4 +107,12 @@ public:
 		MouseLast_X = MouseCurrent_X;
 		MouseLast_Y = MouseCurrent_Y;
 	};
+
+private:
+	float DirToYaw(glm::vec3& dir)
+	{
+		float dirPowSum = pow(dir.x, 2) + pow(dir.y, 2) + pow(dir.z, 2);
+		float yawRadian = acos(dir.z / sqrt(dirPowSum));
+		return yawRadian;
+	}
 };

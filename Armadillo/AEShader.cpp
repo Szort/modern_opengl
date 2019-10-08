@@ -36,7 +36,7 @@ ShadersStringData* AEShader::ShaderParser(std::string file_name)
 }
 
 // Compile shader string to glProgram
-void AEShader::ShaderCompile(std::string file_name)
+void AEShader::Compile(std::string file_name)
 {
 	std::cout << "Compiling " << file_name << " shader..." << std::endl;
 

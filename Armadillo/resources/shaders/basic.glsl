@@ -12,9 +12,15 @@ layout(binding = 0) uniform globalBuffer
     mat4		CameraVPMatrix;
 };
 
+struct ObjectData
+{
+	vec4 id;
+    mat4 matrix;
+};
+
 layout(std140, binding = 0) buffer modelMatrixBuffer
 {
-    mat4 matrix[];
+    ObjectData obj[];
 };
 
 out vec4 FragPos;
@@ -27,7 +33,8 @@ void main()
 	VertColor = color;
 	NormalDir = normal;
 	TextCoord = texCoord.xy;
-	FragPos = matrix[drawid] * vec4(position, 1.0);
+
+	FragPos = obj[drawid].matrix * vec4(position, 1.0);
 	gl_Position = CameraVPMatrix * FragPos;
 }
 

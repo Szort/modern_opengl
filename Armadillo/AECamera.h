@@ -30,7 +30,7 @@ public:
 	glm::vec3 UpAxis;
 
 	AECamera():
-		FieldOfView(glm::radians(60.0f)), NearClip(0.1f), FarClip(1000.0f), Resolution(glm::vec2(1280.0f, 720.0f)),
+		FieldOfView(glm::radians(60.0f)), NearClip(0.1f), FarClip(1000.0f), Resolution(glm::vec2(1920.0f, 1080.0f)),
 		Direction(glm::vec3(-1, 0, 0)), UpAxis(glm::vec3(0, 1, 0)),
 		Speed(0.2f), SpeedRotation(0.005f), Pitch(0.0f),
 		MouseLast_X(0), MouseLast_Y(0), MouseCurrent_X(0), MouseCurrent_Y(0)

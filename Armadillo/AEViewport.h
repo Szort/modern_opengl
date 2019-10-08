@@ -6,6 +6,7 @@
 class AEViewport
 {
 	GLFWwindow*		window;
+	AECamera*		currentCamera;
 	glm::ivec2		size;
 
 public:
@@ -18,7 +19,8 @@ public:
 	void Destroy();
 
 	GLFWwindow* GetWindow() { return window; };
+	AECamera*	GetCurrentCamera() { return currentCamera; };
 	glm::ivec2* GetSize() { return &size; };
 
-	AECamera*	currentCamera;
+	void SetCurrentCamera(AECamera* cam) { currentCamera = cam; };
 };

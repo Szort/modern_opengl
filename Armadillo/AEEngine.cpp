@@ -10,6 +10,8 @@
 
 void AEEngine::ConstructData(AEScene& scene)
 {
+	float							select_color = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+	float							color_offset = 1.61803398875f;
 	DiagTimer						perf;
 	Assimp::Importer				importer;
 	std::vector<AEImportDataSlice>	ImportedData;
@@ -40,7 +42,14 @@ void AEEngine::ConstructData(AEScene& scene)
 
 			DrawList.CommandList.push_back(newDraw);
 			DrawList.IndexList.push_back(base_instance);
-			DrawList.MatrixList.push_back(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f)));
+
+			AEObjectData objectData;
+			objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+			objectData.ColorID.r = ((base_instance & 0x000000FF) >> 0) / 255.0f;
+			objectData.ColorID.g = ((base_instance & 0x0000FF00) >> 8) / 255.0f;
+			objectData.ColorID.b = ((base_instance & 0x00FF0000) >> 16) / 255.0f;
+			objectData.ColorID.a = 0.0f;
+			DrawList.ObjectList.push_back(objectData);
 
 			this_vertex_count += scene.Primitives[object_id].GetVertexCount();
 			this_indices_count += element_count;
@@ -137,7 +146,14 @@ void AEEngine::ConstructData(AEScene& scene)
 
 				DrawList.CommandList.push_back(newDraw);
 				DrawList.IndexList.push_back(base_instance);
-				DrawList.MatrixList.push_back(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f)));
+
+				AEObjectData objectData;
+				objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+				objectData.ColorID.r = ((base_instance & 0x000000FF) >> 0) / 255.0f;
+				objectData.ColorID.g = ((base_instance & 0x0000FF00) >> 8) / 255.0f;
+				objectData.ColorID.b = ((base_instance & 0x00FF0000) >> 16) / 255.0f;
+				objectData.ColorID.a = 0.0f;
+				DrawList.ObjectList.push_back(objectData);
 
 				this_vertex_count += import->mMeshes[i]->mNumVertices;
 				this_indices_count += element_count;
@@ -304,21 +320,21 @@ void AEEngine::CreateUniformBuffer()
 
 void AEEngine::CreateShaderStorageBuffer()
 {
-	if (ModelMatrixSSBO != 0)
+	if (ObjectDataSSBO != 0)
 	{
-		glUnmapNamedBuffer(ModelMatrixSSBO);
-		glDeleteBuffers(1, &ModelMatrixSSBO);
+		glUnmapNamedBuffer(ObjectDataSSBO);
+		glDeleteBuffers(1, &ObjectDataSSBO);
 	}
 
 	// No direct state access functionality for SSBO but we map buffer in perssistent way.
-	glGenBuffers(1, &ModelMatrixSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ModelMatrixSSBO);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, DrawList.MatrixList.size() * sizeof(glm::mat4), 0, flags);
-	modelMatrixPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, DrawList.MatrixList.size() * sizeof(glm::mat4), flags);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, SSBO_MODEL_MATRIX_LOCATION, ModelMatrixSSBO);
+	glGenBuffers(1, &ObjectDataSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ObjectDataSSBO);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, DrawList.ObjectList.size() * sizeof(AEObjectData), 0, flags);
+	objectDataPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, DrawList.ObjectList.size() * sizeof(AEObjectData), flags);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, SSBO_MODEL_MATRIX_LOCATION, ObjectDataSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-	glObjectLabel(GL_BUFFER, ModelMatrixSSBO, -1, "Model Matrix SSBO");
+	glObjectLabel(GL_BUFFER, ObjectDataSSBO, -1, "Object Data SSBO");
 }
 
 void AEEngine::CopyData_GPU()
@@ -329,7 +345,7 @@ void AEEngine::CopyData_GPU()
 	std::memcpy(indicesArrayPtr, DrawList.indices_data.data(), DrawList.indices_data.size() * sizeof(uint32_t));
 	std::memcpy(drawIndexesPtr, DrawList.IndexList.data(), DrawList.IndexList.size() * sizeof(uint32_t));
 	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawElementsCommand));
-	std::memcpy(modelMatrixPtr, DrawList.MatrixList.data(), DrawList.MatrixList.size() * sizeof(glm::mat4));
+	std::memcpy(objectDataPtr, DrawList.ObjectList.data(), DrawList.ObjectList.size() * sizeof(AEObjectData));
 	std::memcpy(globalParamsPtr, &GlobalUBO, sizeof(AEGlobalParameters));
 }
 

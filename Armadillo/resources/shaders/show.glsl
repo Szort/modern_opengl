@@ -22,7 +22,7 @@ in vec2 TexCoord;
 
 layout(binding = 0) uniform sampler2D albedo;
 layout(binding = 1) uniform sampler2D normal;
-uniform image2D GB_Albedo;
+layout(binding = 2) uniform sampler2D depth;
 
 layout(binding = 0) uniform globalBuffer
 {

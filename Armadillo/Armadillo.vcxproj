@@ -219,6 +219,7 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <None Include="resources\meshes\Triangle.gltf" />
     <None Include="resources\meshes\triangleWithoutIndices.bin" />
     <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
+    <None Include="resources\shaders\picking.glsl" />
     <None Include="resources\shaders\show.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -26,11 +26,17 @@ struct AEVertexArrayPackeg
 
 struct AEDrawElementsCommand
 {
-	unsigned int vertexCount;
-	unsigned int instanceCount;
-	unsigned int firstIndex;
-	unsigned int baseVertex;
-	unsigned int baseInstance;
+	uint32_t vertexCount;
+	uint32_t instanceCount;
+	uint32_t firstIndex;
+	uint32_t baseVertex;
+	uint32_t baseInstance;
+};
+
+struct AEObjectData
+{
+	glm::vec4	ColorID;
+	glm::mat4	Matrix;
 };
 
 struct AEDrawList
@@ -41,8 +47,8 @@ struct AEDrawList
 
 	// Indirect draw command lists
 	std::vector<AEDrawElementsCommand>	CommandList;
-	std::vector<unsigned int>			IndexList;
-	std::vector<glm::mat4>				MatrixList;
+	std::vector<AEObjectData>			ObjectList;
+	std::vector<uint32_t>				IndexList;
 };
 
 struct AEImportDataSlice
@@ -70,8 +76,8 @@ class AEEngine
 	void*				drawCommandPtr;
 
 	// All shader storage buffers need to be global
-	uint32_t			ModelMatrixSSBO;
-	void*				modelMatrixPtr;
+	uint32_t			ObjectDataSSBO;
+	void*				objectDataPtr;
 
 	// All uniform buffers need to be global
 	uint32_t			GlobalParamsUBO;

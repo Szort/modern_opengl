@@ -32,14 +32,16 @@ struct ShadersStringData
 
 class AEShader
 {
+	uint32_t program_id;
+
 public:
 	AEShader() {};
 	~AEShader() {};
 
 	ShadersStringData* ShaderParser(std::string file_name);
-	void ShaderCompile(std::string file_name);
+	void Compile(std::string file_name);
 	void Bind();
 	void Unbind();
 
-	unsigned int program_id;
+	const uint32_t GetProgramID() { return program_id; };
 };

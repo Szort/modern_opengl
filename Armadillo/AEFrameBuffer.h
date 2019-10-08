@@ -22,5 +22,6 @@ public:
 	void BindForRead();
 	void Unbind();
 
+	uint32_t* GetTexture() { return textures; };
 	uint32_t GetTexture(AEGBufferTexture id) { return textures[id]; };
 };

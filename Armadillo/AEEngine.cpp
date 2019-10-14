@@ -371,17 +371,12 @@ void AEEngine::DrawGeometry()
 
 void AEEngine::DrawSelected()
 {
-	const AEDrawElementsCommand* drawCommand;
-	drawCommand = (const AEDrawElementsCommand*)&DrawList.CommandList[PickedID];
-
-	glDrawElementsInstancedBaseVertexBaseInstance(
+	glDrawElementsBaseVertex(
 		GL_TRIANGLES,
-		drawCommand->vertexCount,
+		DrawList.CommandList[draw_base].vertexCount,
 		GL_UNSIGNED_INT,
-		(void*)(drawCommand->firstIndex * sizeof(uint32_t)),
-		drawCommand->instanceCount,
-		drawCommand->baseVertex,
-		drawCommand->baseInstance);
+		(void*)(DrawList.CommandList[draw_base].firstIndex * sizeof(uint32_t)),
+		DrawList.CommandList[draw_base].baseVertex);
 }
 
 void AEEngine::DrawQuad()

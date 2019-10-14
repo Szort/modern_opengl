@@ -83,6 +83,9 @@ class AEEngine
 	uint32_t			GlobalParamsUBO;
 	void*				globalParamsPtr;
 
+	// picking object stuff
+	uint32_t			PickedID;
+
 public:
 	float				FpsCap;
 	double				RenderTime;
@@ -90,8 +93,16 @@ public:
 	AEDrawList			DrawList;
 	AEGlobalParameters	GlobalUBO;
 
+	int draw_start;
+	int draw_end;
+	int draw_count;
+	int draw_base;
+
 	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {};
 	~AEEngine() {};
+
+	void SetPickedID(uint32_t id) { PickedID = id; };
+	const uint32_t GetPickedID() { return PickedID; };
 
 	void ConstructData(AEScene& scene);
 	void CompileVAO();
@@ -104,6 +115,7 @@ public:
 	void UpdateUBO_GPU();
 
 	void DrawGeometry();
+	void DrawSelected();
 	void DrawQuad();
 	void BindVAO();
 	void UnbindVAO();

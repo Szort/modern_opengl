@@ -142,5 +142,6 @@
     <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
     <None Include="resources\shaders\show.glsl" />
     <None Include="resources\shaders\picking.glsl" />
+    <None Include="resources\shaders\wireframe.glsl" />
   </ItemGroup>
 </Project>

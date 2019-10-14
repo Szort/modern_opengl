@@ -37,6 +37,12 @@ void AEGui::Draw(AEViewport& viewport, AEEngine& engine)
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
 			1000.0f / ImGui::GetIO().Framerate, 
 			ImGui::GetIO().Framerate);
+		
+		ImGui::Text("PickedID: %d", engine.GetPickedID());
+		ImGui::InputInt("Start:", &engine.draw_start);
+		ImGui::InputInt("End:", &engine.draw_end);
+		ImGui::InputInt("Count:", &engine.draw_count);
+		ImGui::InputInt("Base:", &engine.draw_base);
 
 		ImGui::End();
 	}

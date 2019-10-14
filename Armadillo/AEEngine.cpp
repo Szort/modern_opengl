@@ -45,10 +45,10 @@ void AEEngine::ConstructData(AEScene& scene)
 
 			AEObjectData objectData;
 			objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-			objectData.ColorID.r = ((base_instance & 0x000000FF) >> 0) / 255.0f;
-			objectData.ColorID.g = ((base_instance & 0x0000FF00) >> 8) / 255.0f;
-			objectData.ColorID.b = ((base_instance & 0x00FF0000) >> 16) / 255.0f;
-			objectData.ColorID.a = 0.0f;
+			objectData.ColorID.r = (float)((base_instance & 0x000000FF) >> 0) / 255.0f;
+			objectData.ColorID.g = (float)((base_instance & 0x0000FF00) >> 8) / 255.0f;
+			objectData.ColorID.b = (float)((base_instance & 0x00FF0000) >> 16) / 255.0f;
+			objectData.ColorID.a = 1.0f;
 			DrawList.ObjectList.push_back(objectData);
 
 			this_vertex_count += scene.Primitives[object_id].GetVertexCount();
@@ -149,10 +149,10 @@ void AEEngine::ConstructData(AEScene& scene)
 
 				AEObjectData objectData;
 				objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-				objectData.ColorID.r = ((base_instance & 0x000000FF) >> 0) / 255.0f;
-				objectData.ColorID.g = ((base_instance & 0x0000FF00) >> 8) / 255.0f;
-				objectData.ColorID.b = ((base_instance & 0x00FF0000) >> 16) / 255.0f;
-				objectData.ColorID.a = 0.0f;
+				objectData.ColorID.r = (float)((base_instance & 0x000000FF) >> 0) / 255.0f;
+				objectData.ColorID.g = (float)((base_instance & 0x0000FF00) >> 8) / 255.0f;
+				objectData.ColorID.b = (float)((base_instance & 0x00FF0000) >> 16) / 255.0f;
+				objectData.ColorID.a = 1.0f;
 				DrawList.ObjectList.push_back(objectData);
 
 				this_vertex_count += import->mMeshes[i]->mNumVertices;
@@ -367,6 +367,21 @@ void AEEngine::Idle()
 void AEEngine::DrawGeometry()
 {
 	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)DrawList.CommandList.size(), 0);
+}
+
+void AEEngine::DrawSelected()
+{
+	const AEDrawElementsCommand* drawCommand;
+	drawCommand = (const AEDrawElementsCommand*)&DrawList.CommandList[PickedID];
+
+	glDrawElementsInstancedBaseVertexBaseInstance(
+		GL_TRIANGLES,
+		drawCommand->vertexCount,
+		GL_UNSIGNED_INT,
+		(void*)(drawCommand->firstIndex * sizeof(uint32_t)),
+		drawCommand->instanceCount,
+		drawCommand->baseVertex,
+		drawCommand->baseInstance);
 }
 
 void AEEngine::DrawQuad()

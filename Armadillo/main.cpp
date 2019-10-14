@@ -70,10 +70,11 @@ int main()
 	Engine.ConstructData(Scene);
 
 	// Compile shaders
-	AEShader Shader_Basic, Shader_Show, Shader_Pick;
+	AEShader Shader_Basic, Shader_Show, Shader_Pick, Shader_Wire;
 	Shader_Basic.Compile("basic.glsl");
 	Shader_Show.Compile("show.glsl");
 	Shader_Pick.Compile("picking.glsl");
+	Shader_Wire.Compile("wireframe.glsl");
 
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
@@ -98,7 +99,7 @@ int main()
 		//-------------------------------------------------------------------
 		glEnable(GL_DEPTH_TEST); // Enable depth-testing
 		glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_CULL_FACE);
 
 		//Clear buffer before rendering
@@ -114,19 +115,44 @@ int main()
 		// Rendering section
 		//-------------------------------------------------------------------
 		// Bind framebuffer to render
+		FrameImage.Bind();
 		FrameImage.BindForDraw();
-		
-		// Bind geometry shader (GBuffer 1st pass)
-		Shader_Basic.Bind();
-
-		// Draw binded geometry in first pass for GBuffer
 		Engine.BindVAO();
+
+		// Bind geometry shader and draw geometry (GBuffer 1st pass)
+		Shader_Basic.Bind();		
 		Engine.DrawGeometry();
 
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDepthFunc(GL_LEQUAL);
+		Shader_Wire.Bind();
+		Engine.DrawSelected();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		// Picking object rutine
+		if (glfwGetMouseButton(Viewport.GetWindow(), GLFW_MOUSE_BUTTON_LEFT))
+		{
+			Shader_Pick.Bind();
+			FrameImage.BindForPicking();
+			Engine.DrawGeometry();
+
+			glReadBuffer(GL_COLOR_ATTACHMENT2);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			unsigned char data[4];
+			glReadPixels((int)Viewport.GetCurrentCamera()->MouseCurrent_X, 1080 - (int)Viewport.GetCurrentCamera()->MouseCurrent_Y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			Engine.SetPickedID(data[0] + data[1] * 256 + data[2] * 256 * 256);
+		}
+
 		// Draw full screen quad with GBuffer textures
-		Shader_Show.Bind();
 		FrameImage.Unbind();
+		Shader_Show.Bind();
 		Engine.DrawQuad();
+
+		// Draw wireframe selected object
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glDisable(GL_DEPTH_TEST);
+		//Shader_Wire.Bind();
+		//Engine.DrawSelected();
 
 		// Unbind resources when finished to mantain order
 		Engine.UnbindVAO();
@@ -134,7 +160,7 @@ int main()
 		// GUI draw section
 		//-------------------------------------------------------------------
 		GUI.Draw(Viewport, Engine);
-		//Engine.Idle();
+		Engine.Idle();
 
 		// Swap front and back buffers 
 		glfwSwapBuffers(Viewport.GetWindow());

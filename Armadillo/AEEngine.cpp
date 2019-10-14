@@ -171,10 +171,13 @@ void AEEngine::ConstructData(AEScene& scene)
 			// Pack vertex geometry data
 			for (uint32_t i(0); i < import->mNumMeshes; i++)
 			{
+				AEMesh mesh;
+
 				bool b_vertexColor = import->mMeshes[i]->HasVertexColors(0);
 				bool b_textureCoord = import->mMeshes[i]->HasTextureCoords(0);
 				uint32_t vert_count = import->mMeshes[i]->mNumVertices;
 				uint32_t face_count = import->mMeshes[i]->mNumFaces;
+				mesh.SetName(import->mMeshes[i]->mName.C_Str());
 
 				for (uint32_t vert_id(0); vert_id < vert_count; vert_id++)
 				{
@@ -201,6 +204,8 @@ void AEEngine::ConstructData(AEScene& scene)
 					import_data.indices_data.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[1]);
 					import_data.indices_data.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[2]);
 				}
+
+				scene.Add(mesh);
 			}
 		}
 

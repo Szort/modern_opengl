@@ -25,11 +25,11 @@ class AEObject
 {
 	AEObjectType	ObjectType;
 	unsigned int	MatrixID;
+	std::string		Name;
 
 public:
 	glm::mat4		ModelMatrix;
 	glm::vec3		Position;
-	std::string		Name;
 	bool			Selected;
 	bool			Visible;
 
@@ -39,7 +39,10 @@ public:
 	AEObjectType GetObjType() { return ObjectType; };
 
 	void SetMatrixID(unsigned int& id) { MatrixID = id; };
-	unsigned int GetMatrixID() { return MatrixID; };
+	void SetName(std::string name) { Name = name; };
+
+	unsigned int GetMatrixID() const { return MatrixID; };
+	std::string GetName() const { return Name; };
 
 protected:
 	void SetObjType(const AEObjectType &type) { ObjectType = type; };

@@ -8,16 +8,21 @@
 
 class AEMesh : public AEObject
 {
-	aiMesh* Mesh;
+	glm::vec4	BoundBoxMinMax;
+	uint32_t	VertexCount;
+	uint32_t	InstanceCount;
+	uint32_t	FirstIndex;
+	uint32_t	BaseVertex;
+	uint32_t	BaseInstance;
 
 public:
-	AEMesh()
-	{
-		Position = glm::vec3(0.0f);
-		ModelMatrix = glm::translate(ModelMatrix, Position);
-	};
+	AEMesh() {};
 	~AEMesh() {};
 
-	void SetMesh(aiMesh* mesh) { Mesh = mesh; };
-	aiMesh* GetMesh() { return Mesh; };
+	void SetPosition(glm::vec3 new_pos) { ModelMatrix = glm::translate(ModelMatrix, new_pos); };
+	void SetBoundBox(glm::vec4 bbox) { BoundBoxMinMax = bbox; };
+
+	glm::vec3 GetPosition() { return Position; };
+	glm::vec4 GetBoundBox() const { return BoundBoxMinMax; };
+
 };

@@ -26,22 +26,17 @@ layout(std140, binding = 0) buffer objectsDataBuffer
     ObjectData obj[];
 };
 
-out vec3 ColorID;
-
 void main()
 {
-	ColorID = obj[drawid].id.xyz; 
 	gl_Position = CameraVPMatrix * obj[drawid].matrix * vec4(position, 1.0);
 }
 
 #shader fragment
 #version 450
 
-layout(location = 0) out vec3 select_color;
-
-in vec3 ColorID;
+layout(location = 0) out vec3 color;
 
 void main()
 {
-	select_color = ColorID;
+	color = vec3(0.0, 1.0, 0.0);
 }

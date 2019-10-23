@@ -15,11 +15,16 @@ class AEFrameBuffer
 	uint32_t	framebuffer;
 	uint32_t	textures[eAE_GBuffer_Count];
 
+	uint32_t GBufferDrawAttachemnts[2] = {
+		GL_COLOR_ATTACHMENT0,
+		GL_COLOR_ATTACHMENT1
+	};
+
 public:
 
 	void CreateFrameBuffer(AEViewport& viewport);
 	void BindForDraw();
-	void BindForRead();
+	void Bind();
 	void Unbind();
 
 	uint32_t* GetTexture() { return textures; };

@@ -37,6 +37,10 @@ void AEGui::Draw(AEViewport& viewport, AEEngine& engine)
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
 			1000.0f / ImGui::GetIO().Framerate, 
 			ImGui::GetIO().Framerate);
+		
+		ImGui::Text("PickedID: %d", engine.GetPickedID());
+		ImGui::InputInt("Base:", &engine.draw_base);
+		ImGui::Checkbox("Debug Bounding Boxes", &engine.DebugBBox);
 
 		ImGui::End();
 	}

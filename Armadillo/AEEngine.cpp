@@ -10,8 +10,6 @@
 
 void AEEngine::ConstructData(AEScene& scene)
 {
-	float							select_color = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-	float							color_offset = 1.61803398875f;
 	DiagTimer						perf;
 	Assimp::Importer				importer;
 	std::vector<AEImportDataSlice>	ImportedData;
@@ -31,25 +29,26 @@ void AEEngine::ConstructData(AEScene& scene)
 			this_vertex_count = 0;
 			this_indices_count = 0;
 
+			AEMesh mesh_engine_data;
+			mesh_engine_data.SetName("Primitive");
 			uint32_t element_count = scene.Primitives[object_id].GetIndicesCount();
 
-			AEDrawElementsCommand newDraw;
+			AEDrawObjectsCommand newDraw;
 			newDraw.vertexCount = element_count;
 			newDraw.instanceCount = 1;
 			newDraw.firstIndex = indices_count;
 			newDraw.baseVertex = vertex_count;
 			newDraw.baseInstance = base_instance;
 
+			mesh_engine_data.SetDrawCommand(newDraw);
 			DrawList.CommandList.push_back(newDraw);
 			DrawList.IndexList.push_back(base_instance);
 
 			AEObjectData objectData;
 			objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-			objectData.ColorID.r = ((base_instance & 0x000000FF) >> 0) / 255.0f;
-			objectData.ColorID.g = ((base_instance & 0x0000FF00) >> 8) / 255.0f;
-			objectData.ColorID.b = ((base_instance & 0x00FF0000) >> 16) / 255.0f;
-			objectData.ColorID.a = 0.0f;
 			DrawList.ObjectList.push_back(objectData);
+
+			scene.Add(mesh_engine_data);
 
 			this_vertex_count += scene.Primitives[object_id].GetVertexCount();
 			this_indices_count += element_count;
@@ -135,25 +134,26 @@ void AEEngine::ConstructData(AEScene& scene)
 			// Construct draw command list
 			for (uint32_t i(0); i < import->mNumMeshes; i++)
 			{
+				AEMesh mesh_engine_data;
+				mesh_engine_data.SetName(import->mMeshes[i]->mName.C_Str());
 				uint32_t element_count = import->mMeshes[i]->mNumFaces * import->mMeshes[i]->mFaces[0].mNumIndices;
 
-				AEDrawElementsCommand newDraw;
+				AEDrawObjectsCommand newDraw;
 				newDraw.vertexCount = element_count;
 				newDraw.instanceCount = 1;
 				newDraw.firstIndex = indices_count;
 				newDraw.baseVertex = vertex_count;
 				newDraw.baseInstance = base_instance;
 
+				mesh_engine_data.SetDrawCommand(newDraw);
 				DrawList.CommandList.push_back(newDraw);
 				DrawList.IndexList.push_back(base_instance);
 
 				AEObjectData objectData;
 				objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-				objectData.ColorID.r = ((base_instance & 0x000000FF) >> 0) / 255.0f;
-				objectData.ColorID.g = ((base_instance & 0x0000FF00) >> 8) / 255.0f;
-				objectData.ColorID.b = ((base_instance & 0x00FF0000) >> 16) / 255.0f;
-				objectData.ColorID.a = 0.0f;
 				DrawList.ObjectList.push_back(objectData);
+
+				scene.Add(mesh_engine_data);
 
 				this_vertex_count += import->mMeshes[i]->mNumVertices;
 				this_indices_count += element_count;
@@ -176,10 +176,26 @@ void AEEngine::ConstructData(AEScene& scene)
 				uint32_t vert_count = import->mMeshes[i]->mNumVertices;
 				uint32_t face_count = import->mMeshes[i]->mNumFaces;
 
+				AEObjectMinMax minmax;
+				minmax.x_max = import->mMeshes[i]->mVertices[0].x;
+				minmax.x_min = minmax.x_max;
+				minmax.y_max = import->mMeshes[i]->mVertices[0].y;
+				minmax.y_min = minmax.y_max;
+				minmax.z_max = import->mMeshes[i]->mVertices[0].z;
+				minmax.z_min = minmax.z_max;
+
 				for (uint32_t vert_id(0); vert_id < vert_count; vert_id++)
 				{
 					// Position: vec3
 					raw_data.position = import->mMeshes[i]->mVertices[vert_id];
+
+					// Min max calculations
+					minmax.x_min = minmax.x_min > raw_data.position.x ? raw_data.position.x : minmax.x_min;
+					minmax.x_max = minmax.x_max < raw_data.position.x ? raw_data.position.x : minmax.x_max;
+					minmax.y_min = minmax.y_min > raw_data.position.y ? raw_data.position.y : minmax.y_min;
+					minmax.y_max = minmax.y_max < raw_data.position.y ? raw_data.position.y : minmax.y_max;
+					minmax.z_min = minmax.z_min > raw_data.position.z ? raw_data.position.z : minmax.z_min;
+					minmax.z_max = minmax.z_max < raw_data.position.z ? raw_data.position.z : minmax.z_max;
 
 					// Vertex Color: vec4
 					if (b_vertexColor) raw_data.color = *import->mMeshes[i]->mColors[0];
@@ -201,6 +217,8 @@ void AEEngine::ConstructData(AEScene& scene)
 					import_data.indices_data.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[1]);
 					import_data.indices_data.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[2]);
 				}
+
+				scene.Meshes[i].SetBoundBox(minmax);
 			}
 		}
 
@@ -223,6 +241,9 @@ void AEEngine::ConstructData(AEScene& scene)
 		// Store imported slice
 		ImportedData.push_back(import_data);
 	}
+
+	for (uint32_t i(0); i < DrawList.ObjectList.size(); i++)
+		DrawList.ObjectList[i].BBox = scene.Meshes[i].GetBoundBox();
 
 	DrawList.vertex_data.reserve(vertex_count);
 	DrawList.indices_data.reserve(indices_count);
@@ -287,8 +308,8 @@ void AEEngine::CreateDrawCommandBuffer()
 {
 	// Draw command list buffer
 	glCreateBuffers(1, &DrawCommandObject);
-	glNamedBufferStorage(DrawCommandObject, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), 0, flags);
-	drawCommandPtr = glMapNamedBufferRange(DrawCommandObject, 0, DrawList.CommandList.size() * sizeof(AEDrawElementsCommand), flags);
+	glNamedBufferStorage(DrawCommandObject, DrawList.CommandList.size() * sizeof(AEDrawObjectsCommand), 0, flags);
+	drawCommandPtr = glMapNamedBufferRange(DrawCommandObject, 0, DrawList.CommandList.size() * sizeof(AEDrawObjectsCommand), flags);
 
 	glObjectLabel(GL_BUFFER, DrawCommandObject, -1, "Draw Command Buffer");
 }
@@ -344,7 +365,7 @@ void AEEngine::CopyData_GPU()
 	std::memcpy(vertexArrayPtr, DrawList.vertex_data.data(), DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg));
 	std::memcpy(indicesArrayPtr, DrawList.indices_data.data(), DrawList.indices_data.size() * sizeof(uint32_t));
 	std::memcpy(drawIndexesPtr, DrawList.IndexList.data(), DrawList.IndexList.size() * sizeof(uint32_t));
-	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawElementsCommand));
+	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawObjectsCommand));
 	std::memcpy(objectDataPtr, DrawList.ObjectList.data(), DrawList.ObjectList.size() * sizeof(AEObjectData));
 	std::memcpy(globalParamsPtr, &GlobalUBO, sizeof(AEGlobalParameters));
 }
@@ -367,6 +388,21 @@ void AEEngine::Idle()
 void AEEngine::DrawGeometry()
 {
 	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)DrawList.CommandList.size(), 0);
+}
+
+void AEEngine::DrawSelected()
+{
+	glDrawElementsBaseVertex(
+		GL_TRIANGLES,
+		DrawList.CommandList[draw_base].vertexCount,
+		GL_UNSIGNED_INT,
+		(void*)(DrawList.CommandList[draw_base].firstIndex * sizeof(uint32_t)),
+		DrawList.CommandList[draw_base].baseVertex);
+}
+
+void AEEngine::DrawBoundingBox()
+{
+	glDrawArraysInstanced(GL_POINTS, 0, 1, (uint32_t)DrawList.ObjectList.size());
 }
 
 void AEEngine::DrawQuad()

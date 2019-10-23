@@ -70,10 +70,11 @@ int main()
 	Engine.ConstructData(Scene);
 
 	// Compile shaders
-	AEShader Shader_Basic, Shader_Show, Shader_Pick;
+	AEShader Shader_Basic, Shader_Show, Shader_Wire, Shader_BBox;
 	Shader_Basic.Compile("basic.glsl");
 	Shader_Show.Compile("show.glsl");
-	Shader_Pick.Compile("picking.glsl");
+	Shader_Wire.Compile("wireframe.glsl");
+	Shader_BBox.Compile("show_bbox.glsl");
 
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
@@ -98,7 +99,7 @@ int main()
 		//-------------------------------------------------------------------
 		glEnable(GL_DEPTH_TEST); // Enable depth-testing
 		glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_CULL_FACE);
 
 		//Clear buffer before rendering
@@ -114,29 +115,45 @@ int main()
 		// Rendering section
 		//-------------------------------------------------------------------
 		// Bind framebuffer to render
+		FrameImage.Bind();
 		FrameImage.BindForDraw();
-		
-		// Bind geometry shader (GBuffer 1st pass)
-		Shader_Basic.Bind();
-
-		// Draw binded geometry in first pass for GBuffer
 		Engine.BindVAO();
+
+		// Bind geometry shader and draw geometry (GBuffer 1st pass)
+		Shader_Basic.Bind();		
 		Engine.DrawGeometry();
 
 		// Draw full screen quad with GBuffer textures
-		Shader_Show.Bind();
 		FrameImage.Unbind();
+		Shader_Show.Bind();
 		Engine.DrawQuad();
 
+		// Debug section
+		//-------------------------------------------------------------------
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_DEPTH_TEST);
+
+		// Draw wireframe selected object
+		Shader_Wire.Bind();
+		Engine.DrawSelected();
+
+		// Draw debug BBx data
+		if (Engine.DebugBBox) {
+			Shader_BBox.Bind();
+			Engine.DrawBoundingBox();
+		}
+
 		// Unbind resources when finished to mantain order
+		//-------------------------------------------------------------------
 		Engine.UnbindVAO();
 
 		// GUI draw section
 		//-------------------------------------------------------------------
 		GUI.Draw(Viewport, Engine);
-		//Engine.Idle();
+		Engine.Idle();
 
-		// Swap front and back buffers 
+		// Swap front and back buffers section
+		//-------------------------------------------------------------------
 		glfwSwapBuffers(Viewport.GetWindow());
 		// Poll for and process events
 		glfwPollEvents();

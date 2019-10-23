@@ -25,7 +25,7 @@ void AEFrameBuffer::CreateFrameBuffer(AEViewport& viewport)
 	glNamedFramebufferTexture(framebuffer, GL_COLOR_ATTACHMENT1, textures[eAE_GBuffer_Normal], 0);
 	glNamedFramebufferTexture(framebuffer, GL_DEPTH_ATTACHMENT, textures[eAE_GBuffer_Depth], 0);
 
-	unsigned int DrawAttachemnts[2] = {
+	uint32_t DrawAttachemnts[3] = {
 		GL_COLOR_ATTACHMENT0,
 		GL_COLOR_ATTACHMENT1
 	};
@@ -45,14 +45,13 @@ void AEFrameBuffer::CreateFrameBuffer(AEViewport& viewport)
 
 void AEFrameBuffer::BindForDraw()
 {
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glNamedFramebufferDrawBuffers(framebuffer, 2, GBufferDrawAttachemnts);
 }
 
-void AEFrameBuffer::BindForRead()
+void AEFrameBuffer::Bind()
 {
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void AEFrameBuffer::Unbind()

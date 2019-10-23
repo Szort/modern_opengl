@@ -220,7 +220,10 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <None Include="resources\meshes\triangleWithoutIndices.bin" />
     <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
     <None Include="resources\shaders\picking.glsl" />
+    <None Include="resources\shaders\points.gcompute" />
     <None Include="resources\shaders\show.glsl" />
+    <None Include="resources\shaders\show_bbox.glsl" />
+    <None Include="resources\shaders\wireframe.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

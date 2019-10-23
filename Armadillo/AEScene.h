@@ -1,5 +1,7 @@
 #pragma once
 
+#include <list>
+
 #include "AECamera.h"
 #include "AELight.h"
 #include "AEPrimitive.h"

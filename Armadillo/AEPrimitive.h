@@ -50,21 +50,21 @@ public:
 		switch (prim_type)
 		{
 		case eAE_PrimitiveType_Plane:
-			Name = "Plane";
+			SetName("Plane");
 			Vertexes = (float*)AEPlane_Vertex;
 			Indices = (uint32_t*)AEPlane_Indices;
 			VertexCount = sizeof(AEPlane_Vertex) / 20;
 			IndicesCount = sizeof(AEPlane_Indices) / 4;
 			break;
 		case eAE_PrimitiveType_Cube:
-			Name = "Cube";
+			SetName("Cube");
 			Vertexes = (float*)AECube_Vertex;
 			Indices = (uint32_t*)AECube_Indices;
 			VertexCount = sizeof(AECube_Vertex) / 20;
 			IndicesCount = sizeof(AECube_Indices) / 4;
 			break;
 		default:
-			Name = "NullObject";
+			SetName("NullObject");
 			Vertexes = nullptr;
 			Indices = nullptr;
 			VertexCount = 0;

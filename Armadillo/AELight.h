@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLM/glm.hpp>
-
 #include "AEObject.h"
 
 // Light falloff type

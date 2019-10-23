@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AECamera.h"
-#include <GLM/glm.hpp>
 
 class AEViewport
 {

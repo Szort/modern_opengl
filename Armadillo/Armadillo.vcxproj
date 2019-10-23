@@ -190,8 +190,11 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AECamera.h" />
+    <ClInclude Include="AECore.h" />
     <ClInclude Include="AEEngine.h" />
     <ClInclude Include="AEGui.h" />
+    <ClInclude Include="AEMaterial.h" />
+    <ClInclude Include="AEMedia.h" />
     <ClInclude Include="AEObject.h" />
     <ClInclude Include="AEPrimitive.h" />
     <ClInclude Include="AEDiagnostics.h" />
@@ -199,6 +202,7 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <ClInclude Include="AELight.h" />
     <ClInclude Include="AEFrameBuffer.h" />
     <ClInclude Include="AEScene.h" />
+    <ClInclude Include="AETexture.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />

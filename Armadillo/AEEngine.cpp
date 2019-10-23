@@ -8,6 +8,13 @@
 
 #include "AEDiagnostics.h"
 
+float				AEEngine::FpsCap = 60.0f;
+double				AEEngine::RenderTime = 0;
+double				AEEngine::SleepTime = 0;
+bool				AEEngine::DebugBBox = false;
+int					AEEngine::SelectedID = 0;
+AEGlobalParameters	AEEngine::GlobalUBO;
+
 void AEEngine::ConstructData(AEScene& scene)
 {
 	DiagTimer						perf;
@@ -394,10 +401,10 @@ void AEEngine::DrawSelected()
 {
 	glDrawElementsBaseVertex(
 		GL_TRIANGLES,
-		DrawList.CommandList[draw_base].vertexCount,
+		DrawList.CommandList[SelectedID].vertexCount,
 		GL_UNSIGNED_INT,
-		(void*)(DrawList.CommandList[draw_base].firstIndex * sizeof(uint32_t)),
-		DrawList.CommandList[draw_base].baseVertex);
+		(void*)(DrawList.CommandList[SelectedID].firstIndex * sizeof(uint32_t)),
+		DrawList.CommandList[SelectedID].baseVertex);
 }
 
 void AEEngine::DrawBoundingBox()

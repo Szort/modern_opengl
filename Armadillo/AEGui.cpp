@@ -39,10 +39,8 @@ void AEGui::Draw(AEViewport& viewport, AEEngine& engine)
 			ImGui::GetIO().Framerate);
 		
 		ImGui::Text("PickedID: %d", engine.GetPickedID());
-		ImGui::InputInt("Start:", &engine.draw_start);
-		ImGui::InputInt("End:", &engine.draw_end);
-		ImGui::InputInt("Count:", &engine.draw_count);
 		ImGui::InputInt("Base:", &engine.draw_base);
+		ImGui::Checkbox("Debug Bounding Boxes", &engine.DebugBBox);
 
 		ImGui::End();
 	}

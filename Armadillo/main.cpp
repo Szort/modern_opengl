@@ -70,11 +70,11 @@ int main()
 	Engine.ConstructData(Scene);
 
 	// Compile shaders
-	AEShader Shader_Basic, Shader_Show, Shader_Pick, Shader_Wire;
+	AEShader Shader_Basic, Shader_Show, Shader_Wire, Shader_BBox;
 	Shader_Basic.Compile("basic.glsl");
 	Shader_Show.Compile("show.glsl");
-	Shader_Pick.Compile("picking.glsl");
 	Shader_Wire.Compile("wireframe.glsl");
+	Shader_BBox.Compile("show_bbox.glsl");
 
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
@@ -128,13 +128,23 @@ int main()
 		Shader_Show.Bind();
 		Engine.DrawQuad();
 
-		// Draw wireframe selected object
+		// Debug section
+		//-------------------------------------------------------------------
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDisable(GL_DEPTH_TEST);
+
+		// Draw wireframe selected object
 		Shader_Wire.Bind();
 		Engine.DrawSelected();
 
+		// Draw debug BBx data
+		if (Engine.DebugBBox) {
+			Shader_BBox.Bind();
+			Engine.DrawBoundingBox();
+		}
+
 		// Unbind resources when finished to mantain order
+		//-------------------------------------------------------------------
 		Engine.UnbindVAO();
 
 		// GUI draw section
@@ -142,7 +152,8 @@ int main()
 		GUI.Draw(Viewport, Engine);
 		Engine.Idle();
 
-		// Swap front and back buffers 
+		// Swap front and back buffers section
+		//-------------------------------------------------------------------
 		glfwSwapBuffers(Viewport.GetWindow());
 		// Poll for and process events
 		glfwPollEvents();

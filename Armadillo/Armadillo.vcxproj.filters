@@ -143,5 +143,7 @@
     <None Include="resources\shaders\show.glsl" />
     <None Include="resources\shaders\picking.glsl" />
     <None Include="resources\shaders\wireframe.glsl" />
+    <None Include="resources\shaders\show_bbox.glsl" />
+    <None Include="resources\shaders\points.gcompute" />
   </ItemGroup>
 </Project>

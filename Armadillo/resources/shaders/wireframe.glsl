@@ -14,11 +14,14 @@ layout(binding = 0) uniform globalBuffer
 
 struct ObjectData
 {
-	vec4 id;
+	vec2 x_minmax;
+	vec2 y_minmax;
+	vec2 z_minmax;
+	vec2 padding0;
     mat4 matrix;
 };
 
-layout(std140, binding = 0) buffer modelMatrixBuffer
+layout(std140, binding = 0) buffer objectsDataBuffer
 {
     ObjectData obj[];
 };

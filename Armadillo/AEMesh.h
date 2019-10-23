@@ -8,21 +8,18 @@
 
 class AEMesh : public AEObject
 {
-	glm::vec4	BoundBoxMinMax;
-	uint32_t	VertexCount;
-	uint32_t	InstanceCount;
-	uint32_t	FirstIndex;
-	uint32_t	BaseVertex;
-	uint32_t	BaseInstance;
+	AEObjectMinMax			BoundBoxMinMax;
+	AEDrawObjectsCommand	DrawCommand;
 
 public:
 	AEMesh() {};
 	~AEMesh() {};
 
 	void SetPosition(glm::vec3 new_pos) { ModelMatrix = glm::translate(ModelMatrix, new_pos); };
-	void SetBoundBox(glm::vec4 bbox) { BoundBoxMinMax = bbox; };
+	void SetBoundBox(AEObjectMinMax bbox) { BoundBoxMinMax = bbox; };
+	void SetDrawCommand(AEDrawObjectsCommand draw_cmd) { DrawCommand = draw_cmd; };
 
 	glm::vec3 GetPosition() { return Position; };
-	glm::vec4 GetBoundBox() const { return BoundBoxMinMax; };
-
+	AEObjectMinMax GetBoundBox() const { return BoundBoxMinMax; };
+	AEDrawObjectsCommand GetDrawCommand() const { return DrawCommand; };
 };

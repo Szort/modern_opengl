@@ -14,7 +14,7 @@ public:
 	std::vector<AECamera>		Cameras;
 	std::vector<AELight>		Lights;
 	std::vector<AEPrimitive>	Primitives;
-	std::list<AEMesh>			Meshes;
+	std::vector<AEMesh>			Meshes;
 
 	AEScene() {};
 	~AEScene() {};

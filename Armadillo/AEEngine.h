@@ -14,6 +14,7 @@
 
 #define UBO_GLOBAL_PARAMS_LOCATION		0
 
+
 static uint32_t flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
 struct AEVertexArrayPackeg
@@ -24,21 +25,6 @@ struct AEVertexArrayPackeg
 	aiVector3D	texCoord;
 };
 
-struct AEDrawElementsCommand
-{
-	uint32_t vertexCount;
-	uint32_t instanceCount;
-	uint32_t firstIndex;
-	uint32_t baseVertex;
-	uint32_t baseInstance;
-};
-
-struct AEObjectData
-{
-	glm::vec4	ColorID;
-	glm::mat4	Matrix;
-};
-
 struct AEDrawList
 {
 	// Packed data
@@ -46,7 +32,7 @@ struct AEDrawList
 	std::vector<uint32_t>				indices_data;
 
 	// Indirect draw command lists
-	std::vector<AEDrawElementsCommand>	CommandList;
+	std::vector<AEDrawObjectsCommand>	CommandList;
 	std::vector<AEObjectData>			ObjectList;
 	std::vector<uint32_t>				IndexList;
 };
@@ -92,11 +78,9 @@ public:
 	double				SleepTime;
 	AEDrawList			DrawList;
 	AEGlobalParameters	GlobalUBO;
+	bool				DebugBBox;
 
-	int draw_start;
-	int draw_end;
-	int draw_count;
-	int draw_base;
+	int					draw_base;
 
 	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {};
 	~AEEngine() {};
@@ -116,6 +100,7 @@ public:
 
 	void DrawGeometry();
 	void DrawSelected();
+	void DrawBoundingBox();
 	void DrawQuad();
 	void BindVAO();
 	void UnbindVAO();

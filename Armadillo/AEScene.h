@@ -1,11 +1,10 @@
 #pragma once
 
-#include <list>
-
 #include "AECamera.h"
 #include "AELight.h"
 #include "AEPrimitive.h"
 #include "AEMesh.h"
+#include "AEMaterial.h"
 
 class AEScene
 {
@@ -15,6 +14,7 @@ public:
 	std::vector<AELight>		Lights;
 	std::vector<AEPrimitive>	Primitives;
 	std::vector<AEMesh>			Meshes;
+	std::vector<AEMaterial>		Materials;
 
 	AEScene() {};
 	~AEScene() {};
@@ -31,13 +31,18 @@ public:
 		Lights.push_back(object);
 	};
 
+	void Add(AEPrimitive& object)
+	{
+		Primitives.push_back(object);
+	};
+
 	void Add(AEMesh& object)
 	{
 		Meshes.push_back(object);
 	};
 
-	void Add(AEPrimitive& object)
+	void Add(AEMaterial& object)
 	{
-		Primitives.push_back(object);
+		Materials.push_back(object);
 	};
 };

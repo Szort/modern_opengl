@@ -5,16 +5,10 @@
 		Author: Krzysztof Flisik
 ====================================*/
 
-#include "GL/glew.h"
-#include <GLFW/glfw3.h>
-
-#include <GLM/glm.hpp>
-#include <GLM/gtc/type_ptr.hpp>
-
-#include <iostream>
 #include <stdlib.h>
 #include <algorithm>
 
+#include "AECore.h"
 #include "AEShader.h"
 #include "AEViewport.h"
 #include "AEGui.h"

@@ -1,13 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <GLM/glm.hpp>
-#include <GLM/gtc/matrix_transform.hpp>
+#include "AECore.h"
 
 // Type of object list
 enum AEObjectType
@@ -29,14 +22,14 @@ struct AEObjectMinMax
 	float z_min;
 	float z_max;
 
-	AEObjectMinMax() {
-		x_min = 0.0f;
-		x_max = 0.0f;
-		y_min = 0.0f;
-		y_max = 0.0f;
-		z_min = 0.0f;
-		z_max = 0.0f;
-	};
+	AEObjectMinMax() :
+		x_min(0.0f),
+		x_max(0.0f),
+		y_min(0.0f),
+		y_max(0.0f),
+		z_min(0.0f),
+		z_max(0.0f)
+	{};
 };
 
 struct AEObjectData
@@ -44,6 +37,11 @@ struct AEObjectData
 	AEObjectMinMax	BBox;
 	glm::vec2		Padding0;
 	glm::mat4		Matrix;
+
+	AEObjectData() :
+		Padding0(glm::vec2(0.0f)),
+		Matrix(glm::mat4(1.0f))
+	{};
 };
 
 struct AEDrawObjectsCommand
@@ -54,14 +52,13 @@ struct AEDrawObjectsCommand
 	uint32_t baseVertex;
 	uint32_t baseInstance;
 
-	AEDrawObjectsCommand()
-	{
-		vertexCount = 0;
-		instanceCount = 0;
-		firstIndex = 0;
-		baseVertex = 0;
-		baseInstance = 0;
-	};
+	AEDrawObjectsCommand() :
+		vertexCount(0),
+		instanceCount(0),
+		firstIndex(0),
+		baseVertex(0),
+		baseInstance(0)
+	{};
 };
 
 // Base hierarhical object
@@ -79,16 +76,16 @@ public:
 
 	AEObject() : 
 		ModelMatrix(glm::mat4(1.0f)), 
-		Position(glm::vec3(0.0f)) {};
+		Position(glm::vec3(0.0f)),
+		Selected(false),
+		Visible(true)
+	{};
 	virtual ~AEObject() {};
 
-	AEObjectType GetObjType() { return ObjectType; };
-
-	void SetMatrixID(unsigned int& id)	{ MatrixID = id; };
 	void SetName(std::string name)		{ Name = name; };
-
-	uint32_t GetMatrixID() const		{ return MatrixID; };
+	
 	std::string GetName() const			{ return Name; };
+	AEObjectType GetObjType() { return ObjectType; };
 
 protected:
 	void SetObjType(const AEObjectType &type) { ObjectType = type; };

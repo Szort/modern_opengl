@@ -1,6 +1,3 @@
-#include <fstream>
-#include <iostream>
-
 #include "AEScene.h"
 
 void AEScene::ImportAsset(std::string objFile)

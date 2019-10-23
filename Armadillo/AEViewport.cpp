@@ -1,5 +1,4 @@
 #include "AEViewport.h"
-#include <iostream>
 
 // Init renderer window
 AEViewport::AEViewport(bool& complete, uint32_t view_x, uint32_t view_y)

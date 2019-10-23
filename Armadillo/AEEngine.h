@@ -4,19 +4,6 @@
 #include "AEScene.h"
 #include "AEFrameBuffer.h"
 
-#define VAO_POSITION_LOCATION			0
-#define	VAO_COLOR_LOCATION				1
-#define VAO_NORMAL_LOCATION				2
-#define VAO_TEXTURECOORD_LOCATION		3
-#define VAO_DRAWID_LOCATION				4
-
-#define SSBO_MODEL_MATRIX_LOCATION		0
-
-#define UBO_GLOBAL_PARAMS_LOCATION		0
-
-
-static uint32_t flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-
 struct AEVertexArrayPackeg
 {
 	aiVector3D	position;
@@ -46,6 +33,10 @@ struct AEImportDataSlice
 struct AEGlobalParameters
 {
 	glm::mat4				CameraVPMatrix;		// 64-byte
+
+	AEGlobalParameters() :
+		CameraVPMatrix(glm::mat4(1.0f))
+	{};
 };
 
 class AEEngine
@@ -73,16 +64,16 @@ class AEEngine
 	uint32_t			PickedID;
 
 public:
-	float				FpsCap;
-	double				RenderTime;
-	double				SleepTime;
-	AEDrawList			DrawList;
-	AEGlobalParameters	GlobalUBO;
-	bool				DebugBBox;
+	static float				FpsCap;
+	static double				RenderTime;
+	static double				SleepTime;
+	static bool					DebugBBox;
+	static int					SelectedID;
+	static AEGlobalParameters	GlobalUBO;
 
-	int					draw_base;
+	AEDrawList					DrawList;
 
-	AEEngine(): FpsCap(60.0f), RenderTime(0), SleepTime(0) {};
+	AEEngine() {};
 	~AEEngine() {};
 
 	void SetPickedID(uint32_t id) { PickedID = id; };

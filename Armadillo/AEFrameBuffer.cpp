@@ -1,7 +1,4 @@
-#include <iostream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
+#include "AECore.h"
 #include "AEFrameBuffer.h"
 
 void AEFrameBuffer::CreateFrameBuffer(AEViewport& viewport)

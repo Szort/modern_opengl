@@ -8,6 +8,9 @@ class AEMesh : public AEObject
 	AEDrawObjectsCommand	DrawCommand;
 
 public:
+	uint32_t				ElementCount;
+	uint32_t				VertexCount;
+
 	AEMesh() {};
 	~AEMesh() {};
 

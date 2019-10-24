@@ -51,9 +51,6 @@
     <ClCompile Include="AEEngine.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="AEMesh.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
     <ClCompile Include="AEScene.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>

@@ -177,7 +177,6 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <ClCompile Include="AEFrameBuffer.cpp" />
     <ClCompile Include="AEScene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="AEMesh.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />

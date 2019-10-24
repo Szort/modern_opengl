@@ -14,25 +14,35 @@ struct AEVertexArrayPackeg
 
 struct AEDrawList
 {
+	uint32_t							VertexCount;
+	uint32_t							IndicesCount;
+	uint32_t							BaseInstance;
+
 	// Packed data
-	std::vector<AEVertexArrayPackeg>	vertex_data;
-	std::vector<uint32_t>				indices_data;
+	std::vector<AEVertexArrayPackeg>	VertexData;
+	std::vector<uint32_t>				IndicesData;
 
 	// Indirect draw command lists
 	std::vector<AEDrawObjectsCommand>	CommandList;
 	std::vector<AEObjectData>			ObjectList;
 	std::vector<uint32_t>				IndexList;
+
+	AEDrawList() :
+		VertexCount(0),
+		IndicesCount(0),
+		BaseInstance(0)
+	{};
 };
 
 struct AEImportDataSlice
 {
-	std::vector<AEVertexArrayPackeg>	vertex_data;
-	std::vector<uint32_t>				indices_data;
+	std::vector<AEVertexArrayPackeg>	VertexData;
+	std::vector<uint32_t>				IndicesData;
 };
 
 struct AEGlobalParameters
 {
-	glm::mat4				CameraVPMatrix;		// 64-byte
+	glm::mat4 CameraVPMatrix;
 
 	AEGlobalParameters() :
 		CameraVPMatrix(glm::mat4(1.0f))
@@ -89,6 +99,9 @@ public:
 	void CopyData_GPU();
 	void UpdateUBO_GPU();
 
+	void AddToDrawCommand(AEScene& eng_scene, const aiScene* imp_scene, uint32_t& vert_count, uint32_t& ind_count);
+	void AddToDrawCommand(AEScene& eng_scene, uint32_t& vert_count, uint32_t& ind_count);
+	void MakeDrawCommand(AEMesh& mesh, uint32_t& vert_count, uint32_t& ind_count);
 	void DrawGeometry();
 	void DrawSelected();
 	void DrawBoundingBox();

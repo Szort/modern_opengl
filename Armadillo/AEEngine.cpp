@@ -19,92 +19,10 @@ void AEEngine::ConstructData(AEScene& scene)
 {
 	DiagTimer						perf;
 	Assimp::Importer				importer;
-	std::vector<AEImportDataSlice>	ImportedData;
-
-	uint32_t base_instance = 0;
-	uint32_t vertex_count = 0;
-	uint32_t indices_count = 0;
+	std::vector<AEImportDataSlice>	importedData;
 
 	uint32_t this_vertex_count;
-	uint32_t this_indices_count;
-
-	// Get all vertex data from engine objects
-	if (scene.Primitives.size() != 0)
-	{
-		for (uint32_t object_id(0); object_id < scene.Primitives.size(); object_id++)
-		{
-			this_vertex_count = 0;
-			this_indices_count = 0;
-
-			AEMesh mesh_engine_data;
-			mesh_engine_data.SetName("Primitive");
-			uint32_t element_count = scene.Primitives[object_id].GetIndicesCount();
-
-			AEDrawObjectsCommand newDraw;
-			newDraw.vertexCount = element_count;
-			newDraw.instanceCount = 1;
-			newDraw.firstIndex = indices_count;
-			newDraw.baseVertex = vertex_count;
-			newDraw.baseInstance = base_instance;
-
-			mesh_engine_data.SetDrawCommand(newDraw);
-			DrawList.CommandList.push_back(newDraw);
-			DrawList.IndexList.push_back(base_instance);
-
-			AEObjectData objectData;
-			objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-			DrawList.ObjectList.push_back(objectData);
-
-			scene.Add(mesh_engine_data);
-
-			this_vertex_count += scene.Primitives[object_id].GetVertexCount();
-			this_indices_count += element_count;
-
-			vertex_count += scene.Primitives[object_id].GetVertexCount();
-			indices_count += element_count;
-
-			base_instance++;
-		}
-
-		for (uint32_t object_id(0); object_id < scene.Primitives.size(); object_id++)
-		{
-			AEImportDataSlice import_data;
-			AEVertexArrayPackeg raw_data;
-
-			for (uint32_t vert_id(0); vert_id < scene.Primitives[object_id].GetVertexCount(); vert_id++)
-			{
-				// Position: vec3
-				raw_data.position = aiVector3D(
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id], 
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 1], 
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 2]);
-
-				// Vertex Color: vec4
-				raw_data.color = aiColor4D(0);
-
-				// Vertex Normal: vec3
-				raw_data.normal = aiVector3D(0);
-
-				// Texture Coordinate: vec3
-				raw_data.texCoord = aiVector3D(
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 3],
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 4],
-					0.0f);
-
-				// Push data to container
-				import_data.vertex_data.push_back(raw_data);
-			}
-
-			// Pack indices geometry data
-			for (uint32_t ind_id(0); ind_id < scene.Primitives[object_id].GetIndicesCount(); ind_id++)
-			{
-				import_data.indices_data.push_back(scene.Primitives[object_id].GetIndices()[ind_id]);
-			}
-
-			ImportedData.push_back(import_data);
-		}
-	}
-	
+	uint32_t this_indices_count;	
 
 	perf.StartTimer();
 
@@ -139,41 +57,11 @@ void AEEngine::ConstructData(AEScene& scene)
 		if (import->HasMeshes())
 		{
 			// Construct draw command list
-			for (uint32_t i(0); i < import->mNumMeshes; i++)
-			{
-				AEMesh mesh_engine_data;
-				mesh_engine_data.SetName(import->mMeshes[i]->mName.C_Str());
-				uint32_t element_count = import->mMeshes[i]->mNumFaces * import->mMeshes[i]->mFaces[0].mNumIndices;
-
-				AEDrawObjectsCommand newDraw;
-				newDraw.vertexCount = element_count;
-				newDraw.instanceCount = 1;
-				newDraw.firstIndex = indices_count;
-				newDraw.baseVertex = vertex_count;
-				newDraw.baseInstance = base_instance;
-
-				mesh_engine_data.SetDrawCommand(newDraw);
-				DrawList.CommandList.push_back(newDraw);
-				DrawList.IndexList.push_back(base_instance);
-
-				AEObjectData objectData;
-				objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-				DrawList.ObjectList.push_back(objectData);
-
-				scene.Add(mesh_engine_data);
-
-				this_vertex_count += import->mMeshes[i]->mNumVertices;
-				this_indices_count += element_count;
-
-				vertex_count += import->mMeshes[i]->mNumVertices;
-				indices_count += element_count;
-
-				base_instance++;
-			}
+			AddToDrawCommand(scene, import, this_vertex_count, this_indices_count);
 
 			// Allocate memory for array packing
-			import_data.vertex_data.reserve(this_vertex_count);
-			import_data.indices_data.reserve(this_indices_count);
+			import_data.VertexData.reserve(this_vertex_count);
+			import_data.IndicesData.reserve(this_indices_count);
 
 			// Pack vertex geometry data
 			for (uint32_t i(0); i < import->mNumMeshes; i++)
@@ -214,15 +102,15 @@ void AEEngine::ConstructData(AEScene& scene)
 					if (b_textureCoord) raw_data.texCoord = *import->mMeshes[i]->mTextureCoords[0];
 
 					// Push data to container
-					import_data.vertex_data.push_back(raw_data);
+					import_data.VertexData.push_back(raw_data);
 				}
 
 				// Pack indices geometry data
 				for (uint32_t face_id(0); face_id < face_count; face_id++)
 				{
-					import_data.indices_data.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[0]);
-					import_data.indices_data.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[1]);
-					import_data.indices_data.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[2]);
+					import_data.IndicesData.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[0]);
+					import_data.IndicesData.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[1]);
+					import_data.IndicesData.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[2]);
 				}
 
 				scene.Meshes[i].SetBoundBox(minmax);
@@ -246,23 +134,67 @@ void AEEngine::ConstructData(AEScene& scene)
 		//}
 
 		// Store imported slice
-		ImportedData.push_back(import_data);
+		importedData.push_back(import_data);
+	}
+
+	// Get all vertex data from engine objects
+	if (scene.Primitives.size() != 0)
+	{
+		AddToDrawCommand(scene, this_vertex_count, this_indices_count);
+
+		for (uint32_t object_id(0); object_id < scene.Primitives.size(); object_id++)
+		{
+			AEImportDataSlice import_data;
+			AEVertexArrayPackeg raw_data;
+
+			for (uint32_t vert_id(0); vert_id < scene.Primitives[object_id].GetVertexCount(); vert_id++)
+			{
+				// Position: vec3
+				raw_data.position = aiVector3D(
+					scene.Primitives[object_id].GetVertexes()[5 * vert_id],
+					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 1],
+					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 2]);
+
+				// Vertex Color: vec4
+				raw_data.color = aiColor4D(0);
+
+				// Vertex Normal: vec3
+				raw_data.normal = aiVector3D(0);
+
+				// Texture Coordinate: vec3
+				raw_data.texCoord = aiVector3D(
+					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 3],
+					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 4],
+					0.0f);
+
+				// Push data to container
+				import_data.VertexData.push_back(raw_data);
+			}
+
+			// Pack indices geometry data
+			for (uint32_t ind_id(0); ind_id < scene.Primitives[object_id].GetIndicesCount(); ind_id++)
+			{
+				import_data.IndicesData.push_back(scene.Primitives[object_id].GetIndices()[ind_id]);
+			}
+
+			importedData.push_back(import_data);
+		}
 	}
 
 	for (uint32_t i(0); i < DrawList.ObjectList.size(); i++)
 		DrawList.ObjectList[i].BBox = scene.Meshes[i].GetBoundBox();
 
-	DrawList.vertex_data.reserve(vertex_count);
-	DrawList.indices_data.reserve(indices_count);
+	DrawList.VertexData.reserve(DrawList.VertexCount);
+	DrawList.IndicesData.reserve(DrawList.IndicesCount);
 
 	// Pack all data
-	for (uint32_t id(0); id < ImportedData.size(); id++)
+	for (uint32_t id(0); id < importedData.size(); id++)
 	{
-		for (uint32_t v_id(0); v_id < ImportedData[id].vertex_data.size(); v_id++)
-			DrawList.vertex_data.push_back(ImportedData[id].vertex_data[v_id]);
+		for (uint32_t v_id(0); v_id < importedData[id].VertexData.size(); v_id++)
+			DrawList.VertexData.push_back(importedData[id].VertexData[v_id]);
 	
-		for (uint32_t i_id(0); i_id < ImportedData[id].indices_data.size(); i_id++)
-			DrawList.indices_data.push_back(ImportedData[id].indices_data[i_id]);
+		for (uint32_t i_id(0); i_id < importedData[id].IndicesData.size(); i_id++)
+			DrawList.IndicesData.push_back(importedData[id].IndicesData[i_id]);
 	}
 
 	std::cout << "Time packing: " << perf.GetTimer() << "ns" << std::endl;
@@ -271,6 +203,63 @@ void AEEngine::ConstructData(AEScene& scene)
 	CreateVertexBuffer();
 	CreateUniformBuffer();
 	CreateShaderStorageBuffer();
+}
+
+void AEEngine::AddToDrawCommand(AEScene& eng_scene, const aiScene* imp_scene, uint32_t& vert_count, uint32_t& ind_count)
+{
+	for (uint32_t i(0); i < imp_scene->mNumMeshes; i++)
+	{
+		AEMesh mesh_engine_data;
+		mesh_engine_data.SetName(imp_scene->mMeshes[i]->mName.C_Str());
+		mesh_engine_data.ElementCount = imp_scene->mMeshes[i]->mNumFaces * imp_scene->mMeshes[i]->mFaces[0].mNumIndices;
+		mesh_engine_data.VertexCount = imp_scene->mMeshes[i]->mNumVertices;
+
+		MakeDrawCommand(mesh_engine_data, vert_count, ind_count);
+		eng_scene.Add(mesh_engine_data);
+	}
+}
+
+void AEEngine::AddToDrawCommand(AEScene& eng_scene, uint32_t& vert_count, uint32_t& ind_count)
+{
+	for (uint32_t object_id(0); object_id < eng_scene.Primitives.size(); object_id++)
+	{
+		vert_count = 0;
+		ind_count = 0;
+
+		AEMesh mesh_engine_data;
+		mesh_engine_data.SetName("Primitive");
+		mesh_engine_data.ElementCount = eng_scene.Primitives[object_id].GetIndicesCount();
+		mesh_engine_data.VertexCount = eng_scene.Primitives[object_id].GetVertexCount();
+
+		MakeDrawCommand(mesh_engine_data, vert_count, ind_count);
+		eng_scene.Add(mesh_engine_data);
+	}
+}
+
+void AEEngine::MakeDrawCommand(AEMesh& mesh, uint32_t& vert_count, uint32_t& ind_count)
+{
+	AEDrawObjectsCommand newDraw;
+	newDraw.vertexCount = mesh.ElementCount;
+	newDraw.instanceCount = 1;
+	newDraw.firstIndex = DrawList.IndicesCount;
+	newDraw.baseVertex = DrawList.VertexCount;
+	newDraw.baseInstance = DrawList.BaseInstance;
+
+	mesh.SetDrawCommand(newDraw);
+	DrawList.CommandList.push_back(newDraw);
+	DrawList.IndexList.push_back(DrawList.BaseInstance);
+
+	AEObjectData objectData;
+	objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+	DrawList.ObjectList.push_back(objectData);
+
+	vert_count += mesh.VertexCount;
+	ind_count += mesh.ElementCount;
+
+	DrawList.VertexCount += mesh.VertexCount;
+	DrawList.IndicesCount += mesh.ElementCount;
+
+	DrawList.BaseInstance++;
 }
 
 void AEEngine::CompileVAO()
@@ -323,11 +312,11 @@ void AEEngine::CreateDrawCommandBuffer()
 
 void AEEngine::CreateVertexBuffer()
 {
-	glNamedBufferStorage(VertexBufferObject, DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg), 0, flags);
-	vertexArrayPtr = glMapNamedBufferRange(VertexBufferObject, 0, DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg), flags);
+	glNamedBufferStorage(VertexBufferObject, DrawList.VertexData.size() * sizeof(AEVertexArrayPackeg), 0, flags);
+	vertexArrayPtr = glMapNamedBufferRange(VertexBufferObject, 0, DrawList.VertexData.size() * sizeof(AEVertexArrayPackeg), flags);
 
-	glNamedBufferStorage(IndicesBufferObject, DrawList.indices_data.size() * sizeof(uint32_t), 0, flags);
-	indicesArrayPtr = glMapNamedBufferRange(IndicesBufferObject, 0, DrawList.indices_data.size() * sizeof(uint32_t), flags);
+	glNamedBufferStorage(IndicesBufferObject, DrawList.IndicesData.size() * sizeof(uint32_t), 0, flags);
+	indicesArrayPtr = glMapNamedBufferRange(IndicesBufferObject, 0, DrawList.IndicesData.size() * sizeof(uint32_t), flags);
 
 	glNamedBufferStorage(DrawIndexObject, DrawList.IndexList.size() * sizeof(uint32_t), 0, flags);
 	drawIndexesPtr = glMapNamedBufferRange(DrawIndexObject, 0, DrawList.IndexList.size() * sizeof(uint32_t), flags);
@@ -369,8 +358,8 @@ void AEEngine::CopyData_GPU()
 {
 	// Unsafe if GPU is currently reading from data
 	// but we are moving data before main rendering loop.
-	std::memcpy(vertexArrayPtr, DrawList.vertex_data.data(), DrawList.vertex_data.size() * sizeof(AEVertexArrayPackeg));
-	std::memcpy(indicesArrayPtr, DrawList.indices_data.data(), DrawList.indices_data.size() * sizeof(uint32_t));
+	std::memcpy(vertexArrayPtr, DrawList.VertexData.data(), DrawList.VertexData.size() * sizeof(AEVertexArrayPackeg));
+	std::memcpy(indicesArrayPtr, DrawList.IndicesData.data(), DrawList.IndicesData.size() * sizeof(uint32_t));
 	std::memcpy(drawIndexesPtr, DrawList.IndexList.data(), DrawList.IndexList.size() * sizeof(uint32_t));
 	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawObjectsCommand));
 	std::memcpy(objectDataPtr, DrawList.ObjectList.data(), DrawList.ObjectList.size() * sizeof(AEObjectData));
@@ -394,7 +383,12 @@ void AEEngine::Idle()
 
 void AEEngine::DrawGeometry()
 {
-	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)DrawList.CommandList.size(), 0);
+	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)DrawList.CommandList.size() - 1, 0);
+}
+
+void AEEngine::DrawBoundingBox()
+{
+	glDrawArraysInstanced(GL_POINTS, 0, 1, (uint32_t)DrawList.ObjectList.size());
 }
 
 void AEEngine::DrawSelected()
@@ -407,15 +401,14 @@ void AEEngine::DrawSelected()
 		DrawList.CommandList[SelectedID].baseVertex);
 }
 
-void AEEngine::DrawBoundingBox()
-{
-	glDrawArraysInstanced(GL_POINTS, 0, 1, (uint32_t)DrawList.ObjectList.size());
-}
-
 void AEEngine::DrawQuad()
 {
-	// Works only if quad is first in draw command list
-	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, 1, 0);
+	glDrawElementsBaseVertex(
+		GL_TRIANGLES,
+		DrawList.CommandList[(uint32_t)DrawList.ObjectList.size() - 1].vertexCount,
+		GL_UNSIGNED_INT,
+		(void*)(DrawList.CommandList[(uint32_t)DrawList.ObjectList.size() - 1].firstIndex * sizeof(uint32_t)),
+		DrawList.CommandList[(uint32_t)DrawList.ObjectList.size() - 1].baseVertex);
 }
 
 void AEEngine::BindVAO()

@@ -9,7 +9,10 @@ layout(location = 4) in uint drawid;
 
 layout(binding = 0) uniform globalBuffer
 {
-    mat4 CameraVPMatrix;
+    mat4	CameraVPMatrix;
+	mat4	CameraPMatrix_Inv;
+	vec3	AmbientColor;
+	float	padding0;
 };
 
 struct ObjectData
@@ -28,7 +31,8 @@ layout(std140, binding = 0) buffer objectsDataBuffer
 
 void main()
 {
-	gl_Position = CameraVPMatrix * obj[drawid].matrix * vec4(position, 1.0);
+	// Need to construct separate DrawCommandList to draw selection
+	gl_Position = CameraVPMatrix * obj[0].matrix * vec4(position, 1.0);
 }
 
 #shader fragment

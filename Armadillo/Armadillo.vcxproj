@@ -201,6 +201,7 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <ClInclude Include="AELight.h" />
     <ClInclude Include="AEFrameBuffer.h" />
     <ClInclude Include="AEScene.h" />
+    <ClInclude Include="AEShaderBuffer.h" />
     <ClInclude Include="AETexture.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />

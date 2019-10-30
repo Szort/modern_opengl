@@ -5,9 +5,16 @@
 #include "AEPrimitive.h"
 #include "AEMesh.h"
 #include "AEMaterial.h"
+#include "AEShaderBuffer.h"
+
 
 class AEScene
 {
+	// All shader storage buffers need to be global
+	AEShaderBuffer				Object_SSBO;
+	AEShaderBuffer				Light_SSBO;
+	AEShaderBuffer				Material_SSBO;
+
 public:
 	std::vector<std::string>	AssetPaths;
 	std::vector<AECamera>		Cameras;
@@ -20,29 +27,11 @@ public:
 	~AEScene() {};
 
 	void ImportAsset(std::string objFiled);
+	void ConstructBuffers();
 
-	void Add(AECamera& object)
-	{
-		Cameras.push_back(object);
-	};
-
-	void Add(AELight& object)
-	{
-		Lights.push_back(object);
-	};
-
-	void Add(AEPrimitive& object)
-	{
-		Primitives.push_back(object);
-	};
-
-	void Add(AEMesh& object)
-	{
-		Meshes.push_back(object);
-	};
-
-	void Add(AEMaterial& object)
-	{
-		Materials.push_back(object);
-	};
+	void Add(AECamera& object);
+	void Add(AELight& object);
+	void Add(AEPrimitive& object);
+	void Add(AEMesh& object);
+	void Add(AEMaterial& object);
 };

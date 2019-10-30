@@ -82,6 +82,7 @@ public:
 	{};
 	virtual ~AEObject() {};
 
+	virtual void SetPosition(glm::vec3 position) { Position = position; };
 	void SetName(std::string name)		{ Name = name; };
 	
 	std::string GetName() const			{ return Name; };

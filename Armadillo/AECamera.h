@@ -8,6 +8,7 @@ class AECamera : public AEObject
 
 	glm::mat4 ViewMatrix;
 	glm::mat4 ProjectionMatrix;
+	glm::mat4 ProjectionMatrix_Inv;
 	glm::mat4 ViewProjectionMatrix;
 
 	float Speed;
@@ -55,11 +56,13 @@ public:
 	};
 
 	glm::mat4& GetVPMatrix() { return ViewProjectionMatrix; };
+	glm::mat4& GetPMatrix_Inv() { return ProjectionMatrix_Inv; };
 
 	void ComputeViewMatrix()
 	{
 		ViewMatrix = glm::lookAt(Position, Position + Direction, UpAxis);
 		ProjectionMatrix = glm::perspective(FieldOfView, Resolution.x / Resolution.y, NearClip, FarClip);
+		ProjectionMatrix_Inv = glm::inverse(ProjectionMatrix);
 		ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 	};
 

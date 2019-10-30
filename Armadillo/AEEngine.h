@@ -42,10 +42,15 @@ struct AEImportDataSlice
 
 struct AEGlobalParameters
 {
-	glm::mat4 CameraVPMatrix;
+	glm::mat4	CameraVPMatrix;
+	glm::mat4	CameraPMatrix_Inv;
+	glm::vec3	AmbientColor;
+	float		padding0;
 
 	AEGlobalParameters() :
-		CameraVPMatrix(glm::mat4(1.0f))
+		CameraVPMatrix(glm::mat4(1.0f)),
+		CameraPMatrix_Inv(glm::mat4(1.0f)),
+		AmbientColor(glm::vec3(0.0f))
 	{};
 };
 
@@ -62,16 +67,9 @@ class AEEngine
 	void*				drawIndexesPtr;
 	void*				drawCommandPtr;
 
-	// All shader storage buffers need to be global
-	uint32_t			ObjectDataSSBO;
-	void*				objectDataPtr;
-
 	// All uniform buffers need to be global
-	uint32_t			GlobalParamsUBO;
-	void*				globalParamsPtr;
-
-	// picking object stuff
-	uint32_t			PickedID;
+	AEShaderBuffer				Global_UBO;
+	AEShaderBuffer				Objects_SSBO;
 
 public:
 	static float				FpsCap;
@@ -86,15 +84,10 @@ public:
 	AEEngine() {};
 	~AEEngine() {};
 
-	void SetPickedID(uint32_t id) { PickedID = id; };
-	const uint32_t GetPickedID() { return PickedID; };
-
 	void ConstructData(AEScene& scene);
 	void CompileVAO();
 	void CreateDrawCommandBuffer();
 	void CreateVertexBuffer();
-	void CreateUniformBuffer();
-	void CreateShaderStorageBuffer();
 
 	void CopyData_GPU();
 	void UpdateUBO_GPU();

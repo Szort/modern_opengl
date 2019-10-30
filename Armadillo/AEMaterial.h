@@ -5,15 +5,17 @@
 
 class AEMaterial
 {
-	glm::vec4	AlbedoValue;
-	glm::vec3	NormalValue;
-	float		RoughnessValue;
-	float		MetalnessValue;
+	glm::vec4		AlbedoValue;
+	glm::vec3		NormalValue;
+	float			RoughnessValue;
+	float			MetalnessValue;
 	
-	AETexture	AlbedoTexture;
-	AETexture	NormalTexture;
-	AETexture	RoughnessTexture;
-	AETexture	MetalnessTexture;
+	AETexture		AlbedoTexture;
+	AETexture		NormalTexture;
+	AETexture		RoughnessTexture;
+	AETexture		MetalnessTexture;
+
+	std::string		Name;
 
 public:
 	AEMaterial() {};

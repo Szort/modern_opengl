@@ -48,13 +48,20 @@ int main()
 
 	AEPrimitive		Plane(eAE_PrimitiveType_Plane);
 
+	// Startup light setup
+	AELight			PointLight01(eAE_LightType_Point);
+	PointLight01.SetColor(glm::vec3(0.2f, 0.95f, 0.3f));
+	PointLight01.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
+
 	// Get current cam for viewport
 	Viewport.SetCurrentCamera(&Camera);
 
 	// Import assets
 	Scene.Add(Plane);
+	Scene.Add(PointLight01);
 	Scene.ImportAsset("./resources/meshes/Sponza/Sponza.gltf");
-	Scene.ImportAsset("./resources/meshes/BoxVertexColors.gltf");
+	//Scene.ImportAsset("./resources/meshes/BoxVertexColors.gltf");
+	//Scene.ImportAsset("./resources/meshes/Lucy/lucy_20L.OBJ");
 
 	// Create GBuffer
 	FrameImage.CreateFrameBuffer(Viewport);
@@ -73,9 +80,11 @@ int main()
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
 
+	Engine.GlobalUBO.AmbientColor = glm::vec3(0.2f, 0.22f, 1.17f);
+
 	// Compile geometry data
 	Engine.CopyData_GPU();
-
+	Scene.ConstructBuffers();
 	// Bind GBuffer textures in manual fashion.
 	// uint64_t are not present in GLSL shaders on Intel.
 	// If we want a minimum CPU overhead we can pass all textures we have in one command,
@@ -104,6 +113,7 @@ int main()
 		// Update data and parameters before rendering
 		//-------------------------------------------------------------------
 		Engine.GlobalUBO.CameraVPMatrix = Camera.GetVPMatrix();
+		Engine.GlobalUBO.CameraPMatrix_Inv = Camera.GetPMatrix_Inv();
 		Engine.UpdateUBO_GPU();
 
 		// Rendering section
@@ -124,17 +134,22 @@ int main()
 
 		// Debug section
 		//-------------------------------------------------------------------
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDisable(GL_DEPTH_TEST);
+		if (Engine.DebugBBox)
+		{
+			// Switch to line drawing
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_DEPTH_TEST);
 
-		// Draw wireframe selected object
-		Shader_Wire.Bind();
-		Engine.DrawSelected();
-
-		// Draw debug BBx data
-		if (Engine.DebugBBox) {
+			// Draw debug BBx data
 			Shader_BBox.Bind();
 			Engine.DrawBoundingBox();
+
+			if (false)
+			{
+				// Draw wireframe selected object
+				Shader_Wire.Bind();
+				Engine.DrawSelected();
+			}
 		}
 
 		// Unbind resources when finished to mantain order

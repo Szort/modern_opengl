@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AEObject.h"
+#include "AEMaterial.h"
 
 class AEMesh : public AEObject
 {
@@ -10,6 +11,7 @@ class AEMesh : public AEObject
 public:
 	uint32_t				ElementCount;
 	uint32_t				VertexCount;
+	AEMaterial*				Material;
 
 	AEMesh() {};
 	~AEMesh() {};

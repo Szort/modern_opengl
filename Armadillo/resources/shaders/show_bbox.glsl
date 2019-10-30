@@ -17,7 +17,10 @@ void main()
 
 layout(binding = 0) uniform globalBuffer
 {
-    mat4 CameraVPMatrix;
+    mat4	CameraVPMatrix;
+	mat4	CameraPMatrix_Inv;
+	vec3	AmbientColor;
+	float	padding0;
 };
 
 in int DrawID[];

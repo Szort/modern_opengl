@@ -18,22 +18,24 @@ AEGlobalParameters	AEEngine::GlobalUBO;
 void AEEngine::ConstructData(AEScene& scene)
 {
 	DiagTimer						perf;
+	DiagTimer						perf_detail;
 	Assimp::Importer				importer;
 	std::vector<AEImportDataSlice>	importedData;
 
 	uint32_t this_vertex_count;
 	uint32_t this_indices_count;	
 
-	perf.StartTimer();
-
 	// Import all assets in que
+	perf.StartTimer();
 	for (uint32_t asset_id(0); asset_id < scene.AssetPaths.size(); asset_id++)
 	{
 		this_vertex_count = 0;
 		this_indices_count = 0;
 
 		// Import file and create pointer to scene
+		perf_detail.StartTimer();
 		const aiScene* import = importer.ReadFile(scene.AssetPaths[asset_id].c_str(), aiProcessPreset_TargetRealtime_Quality);
+		std::cout << "Import [" << scene.AssetPaths[asset_id].c_str() << "] time:" << perf_detail.GetTimer() << "ns" << std::endl;
 
 		// Check if success with import
 		if (!import)
@@ -118,14 +120,15 @@ void AEEngine::ConstructData(AEScene& scene)
 		}
 
 		// Materials data
-		//if (import->HasMaterials())
-		//{
-		//	uint32_t material_count = import->mNumMaterials;
-		//	for (uint32_t idx(0); idx < material_count; idx++)
-		//	{
-		//		aiString material_name = import->mMaterials[idx]->GetName();
-		//	}
-		//}
+		if (import->HasMaterials())
+		{
+			uint32_t material_count = import->mNumMaterials;
+			for (uint32_t idx(0); idx < material_count; idx++)
+			{
+				aiString material_name = import->mMaterials[idx]->GetName();
+			}
+		}
+
 		//
 		//// Texture data
 		//if (import->HasTextures())
@@ -136,8 +139,10 @@ void AEEngine::ConstructData(AEScene& scene)
 		// Store imported slice
 		importedData.push_back(import_data);
 	}
+	std::cout << "Import time: " << perf.GetTimer() << "ns" << std::endl;
 
 	// Get all vertex data from engine objects
+	perf.StartTimer();
 	if (scene.Primitives.size() != 0)
 	{
 		AddToDrawCommand(scene, this_vertex_count, this_indices_count);
@@ -180,14 +185,24 @@ void AEEngine::ConstructData(AEScene& scene)
 			importedData.push_back(import_data);
 		}
 	}
+	std::cout << "Primitives construction time: " << perf.GetTimer() << "ns" << std::endl;
 
-	for (uint32_t i(0); i < DrawList.ObjectList.size(); i++)
-		DrawList.ObjectList[i].BBox = scene.Meshes[i].GetBoundBox();
+	perf.StartTimer();
+	{
+		for (uint32_t i(0); i < DrawList.ObjectList.size(); i++)
+			DrawList.ObjectList[i].BBox = scene.Meshes[i].GetBoundBox();
+	}
+	std::cout << "BBox data copy time: " << perf.GetTimer() << "ns" << std::endl;
 
-	DrawList.VertexData.reserve(DrawList.VertexCount);
-	DrawList.IndicesData.reserve(DrawList.IndicesCount);
+	perf.StartTimer();
+	{
+		DrawList.VertexData.reserve(DrawList.VertexCount);
+		DrawList.IndicesData.reserve(DrawList.IndicesCount);
+	}
+	std::cout << "VAO data memory reserve time: " << perf.GetTimer() << "ns" << std::endl;	
 
-	// Pack all data
+	// Pack all data to be copiend later to VAO buffer
+	perf.StartTimer();
 	for (uint32_t id(0); id < importedData.size(); id++)
 	{
 		for (uint32_t v_id(0); v_id < importedData[id].VertexData.size(); v_id++)
@@ -196,13 +211,12 @@ void AEEngine::ConstructData(AEScene& scene)
 		for (uint32_t i_id(0); i_id < importedData[id].IndicesData.size(); i_id++)
 			DrawList.IndicesData.push_back(importedData[id].IndicesData[i_id]);
 	}
-
-	std::cout << "Time packing: " << perf.GetTimer() << "ns" << std::endl;
+	std::cout << "Packing time: " << perf.GetTimer() << "ns \n" << std::endl;
 
 	CreateDrawCommandBuffer();
 	CreateVertexBuffer();
-	CreateUniformBuffer();
-	CreateShaderStorageBuffer();
+	Global_UBO.CreateBuffer(eAE_ShaderBufferType_UBO, UBO_GLOBAL_PARAMS_LOCATION, sizeof(AEGlobalParameters), "Global Parameters Buffer");
+	Objects_SSBO.CreateBuffer(eAE_ShaderBufferType_SSBO, SSBO_MODEL_MATRIX_LOCATION, DrawList.ObjectList.size() * sizeof(AEObjectData), "Object Data SSBO");
 }
 
 void AEEngine::AddToDrawCommand(AEScene& eng_scene, const aiScene* imp_scene, uint32_t& vert_count, uint32_t& ind_count)
@@ -250,7 +264,17 @@ void AEEngine::MakeDrawCommand(AEMesh& mesh, uint32_t& vert_count, uint32_t& ind
 	DrawList.IndexList.push_back(DrawList.BaseInstance);
 
 	AEObjectData objectData;
-	objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+
+	if (!mesh.GetName().compare("Group13100"))
+	{
+		objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f));
+		objectData.Matrix = glm::rotate(objectData.Matrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
+	}
+	else
+	{
+		objectData.Matrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+	}
+
 	DrawList.ObjectList.push_back(objectData);
 
 	vert_count += mesh.VertexCount;
@@ -322,38 +346,6 @@ void AEEngine::CreateVertexBuffer()
 	drawIndexesPtr = glMapNamedBufferRange(DrawIndexObject, 0, DrawList.IndexList.size() * sizeof(uint32_t), flags);
 }
 
-void AEEngine::CreateUniformBuffer()
-{
-	// No direct state access functionality for UBO but we map buffer in perssistent way.
-	glGenBuffers(1, &GlobalParamsUBO);
-	glBindBuffer(GL_UNIFORM_BUFFER, GlobalParamsUBO);
-	glBufferStorage(GL_UNIFORM_BUFFER, sizeof(AEGlobalParameters), 0, flags);
-	globalParamsPtr = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(AEGlobalParameters), flags);
-	glBindBufferBase(GL_UNIFORM_BUFFER, UBO_GLOBAL_PARAMS_LOCATION, GlobalParamsUBO);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glObjectLabel(GL_BUFFER, GlobalParamsUBO, -1, "Global Parameters Buffer");
-}
-
-void AEEngine::CreateShaderStorageBuffer()
-{
-	if (ObjectDataSSBO != 0)
-	{
-		glUnmapNamedBuffer(ObjectDataSSBO);
-		glDeleteBuffers(1, &ObjectDataSSBO);
-	}
-
-	// No direct state access functionality for SSBO but we map buffer in perssistent way.
-	glGenBuffers(1, &ObjectDataSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ObjectDataSSBO);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, DrawList.ObjectList.size() * sizeof(AEObjectData), 0, flags);
-	objectDataPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, DrawList.ObjectList.size() * sizeof(AEObjectData), flags);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, SSBO_MODEL_MATRIX_LOCATION, ObjectDataSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-	glObjectLabel(GL_BUFFER, ObjectDataSSBO, -1, "Object Data SSBO");
-}
-
 void AEEngine::CopyData_GPU()
 {
 	// Unsafe if GPU is currently reading from data
@@ -362,15 +354,15 @@ void AEEngine::CopyData_GPU()
 	std::memcpy(indicesArrayPtr, DrawList.IndicesData.data(), DrawList.IndicesData.size() * sizeof(uint32_t));
 	std::memcpy(drawIndexesPtr, DrawList.IndexList.data(), DrawList.IndexList.size() * sizeof(uint32_t));
 	std::memcpy(drawCommandPtr, DrawList.CommandList.data(), DrawList.CommandList.size() * sizeof(AEDrawObjectsCommand));
-	std::memcpy(objectDataPtr, DrawList.ObjectList.data(), DrawList.ObjectList.size() * sizeof(AEObjectData));
-	std::memcpy(globalParamsPtr, &GlobalUBO, sizeof(AEGlobalParameters));
+	Objects_SSBO.CopyDataToGPU(DrawList.ObjectList.data());
+	UpdateUBO_GPU();
 }
 
 void AEEngine::UpdateUBO_GPU()
 {
 	// TODO:
 	// Need to do proper syncing. This is unsafe.
-	std::memcpy(globalParamsPtr, &GlobalUBO, sizeof(AEGlobalParameters));
+	Global_UBO.CopyDataToGPU(&GlobalUBO);
 }
 
 void AEEngine::Idle()

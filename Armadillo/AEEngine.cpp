@@ -386,7 +386,7 @@ void AEEngine::DrawBoundingBox()
 void AEEngine::DrawSelected()
 {
 	glDrawElementsBaseVertex(
-		GL_TRIANGLES,
+		GL_LINE_STRIP,
 		DrawList.CommandList[SelectedID].vertexCount,
 		GL_UNSIGNED_INT,
 		(void*)(DrawList.CommandList[SelectedID].firstIndex * sizeof(uint32_t)),

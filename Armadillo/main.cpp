@@ -50,7 +50,7 @@ int main()
 
 	// Startup light setup
 	AELight			PointLight01(eAE_LightType_Point);
-	PointLight01.SetColor(glm::vec3(0.2f, 0.95f, 0.3f));
+	PointLight01.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
 	PointLight01.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 
 	// Get current cam for viewport
@@ -72,15 +72,15 @@ int main()
 
 	// Compile shaders
 	AEShader Shader_Basic, Shader_Show, Shader_Wire, Shader_BBox;
-	Shader_Basic.Compile("basic.glsl");
-	Shader_Show.Compile("show.glsl");
-	Shader_Wire.Compile("wireframe.glsl");
-	Shader_BBox.Compile("show_bbox.glsl");
+	Shader_Basic.Compile("geometry_opaque.glsl");
+	Shader_Show.Compile("light_draw.glsl");
+	Shader_Wire.Compile("debug_wireframe.glsl");
+	Shader_BBox.Compile("debug_bbox.glsl");
 
 	//Initialize resources
 	GUI.Initiate(Viewport.GetWindow());
 
-	Engine.GlobalUBO.AmbientColor = glm::vec3(0.2f, 0.22f, 1.17f);
+	Engine.GlobalUBO.AmbientColor = glm::vec3(0.2f, 0.22f, 0.17f);
 
 	// Compile geometry data
 	Engine.CopyData_GPU();
@@ -113,7 +113,6 @@ int main()
 		// Update data and parameters before rendering
 		//-------------------------------------------------------------------
 		Engine.GlobalUBO.CameraVPMatrix = Camera.GetVPMatrix();
-		Engine.GlobalUBO.CameraPMatrix_Inv = Camera.GetPMatrix_Inv();
 		Engine.UpdateUBO_GPU();
 
 		// Rendering section
@@ -136,8 +135,7 @@ int main()
 		//-------------------------------------------------------------------
 		if (Engine.DebugBBox)
 		{
-			// Switch to line drawing
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			// Switch off depth testing. Active depth map is from full quad drawing
 			glDisable(GL_DEPTH_TEST);
 
 			// Draw debug BBx data
@@ -147,6 +145,7 @@ int main()
 			if (false)
 			{
 				// Draw wireframe selected object
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				Shader_Wire.Bind();
 				Engine.DrawSelected();
 			}

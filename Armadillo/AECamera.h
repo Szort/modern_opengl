@@ -62,7 +62,6 @@ public:
 	{
 		ViewMatrix = glm::lookAt(Position, Position + Direction, UpAxis);
 		ProjectionMatrix = glm::perspective(FieldOfView, Resolution.x / Resolution.y, NearClip, FarClip);
-		ProjectionMatrix_Inv = glm::inverse(ProjectionMatrix);
 		ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 	};
 

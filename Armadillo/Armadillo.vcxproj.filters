@@ -142,7 +142,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\basic.glsl" />
     <None Include="resources\meshes\BoxVertexColors.gltf" />
     <None Include="resources\meshes\simpleTriangle.bin">
       <Filter>Pliki zasobów</Filter>
@@ -152,10 +151,11 @@
       <Filter>Pliki zasobów</Filter>
     </None>
     <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
-    <None Include="resources\shaders\show.glsl" />
     <None Include="resources\shaders\picking.glsl" />
-    <None Include="resources\shaders\wireframe.glsl" />
-    <None Include="resources\shaders\show_bbox.glsl" />
     <None Include="resources\shaders\points.gcompute" />
+    <None Include="resources\shaders\geometry_opaque.glsl" />
+    <None Include="resources\shaders\light_draw.glsl" />
+    <None Include="resources\shaders\debug_bbox.glsl" />
+    <None Include="resources\shaders\debug_wireframe.glsl" />
   </ItemGroup>
 </Project>

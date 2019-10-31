@@ -217,7 +217,7 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <ClInclude Include="AEViewport.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\basic.glsl" />
+    <None Include="resources\shaders\geometry_opaque.glsl" />
     <None Include="resources\meshes\BoxVertexColors.gltf" />
     <None Include="resources\meshes\simpleTriangle.bin" />
     <None Include="resources\meshes\Triangle.gltf" />
@@ -225,9 +225,9 @@ if not exist "$(TargetDir)resources\meshes" mkdir "$(TargetDir)resources\meshes"
     <None Include="resources\meshes\TriangleWithoutIndices.gltf" />
     <None Include="resources\shaders\picking.glsl" />
     <None Include="resources\shaders\points.gcompute" />
-    <None Include="resources\shaders\show.glsl" />
-    <None Include="resources\shaders\show_bbox.glsl" />
-    <None Include="resources\shaders\wireframe.glsl" />
+    <None Include="resources\shaders\light_draw.glsl" />
+    <None Include="resources\shaders\debug_bbox.glsl" />
+    <None Include="resources\shaders\debug_wireframe.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

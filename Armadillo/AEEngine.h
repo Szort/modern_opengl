@@ -84,7 +84,7 @@ public:
 	AEEngine() {};
 	~AEEngine() {};
 
-	void ConstructData(AEScene& scene);
+	void ConstructData(AEScene* scene);
 	void CompileVAO();
 	void CreateDrawCommandBuffer();
 	void CreateVertexBuffer();
@@ -92,8 +92,8 @@ public:
 	void CopyData_GPU();
 	void UpdateUBO_GPU();
 
-	void AddToDrawCommand(AEScene& eng_scene, const aiScene* imp_scene, uint32_t& vert_count, uint32_t& ind_count);
-	void AddToDrawCommand(AEScene& eng_scene, uint32_t& vert_count, uint32_t& ind_count);
+	void AddToDrawCommand(AEScene* eng_scene, const aiScene* imp_scene, uint32_t& vert_count, uint32_t& ind_count);
+	void AddToDrawCommand(AEScene* eng_scene, uint32_t& vert_count, uint32_t& ind_count);
 	void MakeDrawCommand(AEMesh& mesh, uint32_t& vert_count, uint32_t& ind_count);
 	void DrawGeometry();
 	void DrawSelected();

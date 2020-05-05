@@ -15,7 +15,7 @@ bool				AEEngine::DebugBBox = false;
 int					AEEngine::SelectedID = 0;
 AEGlobalParameters	AEEngine::GlobalUBO;
 
-void AEEngine::ConstructData(AEScene& scene)
+void AEEngine::ConstructData(AEScene* scene)
 {
 	DiagTimer						perf;
 	DiagTimer						perf_detail;
@@ -27,15 +27,15 @@ void AEEngine::ConstructData(AEScene& scene)
 
 	// Import all assets in que
 	perf.StartTimer();
-	for (uint32_t asset_id(0); asset_id < scene.AssetPaths.size(); asset_id++)
+	for (uint32_t asset_id(0); asset_id < scene->AssetPaths.size(); asset_id++)
 	{
 		this_vertex_count = 0;
 		this_indices_count = 0;
 
 		// Import file and create pointer to scene
 		perf_detail.StartTimer();
-		const aiScene* import = importer.ReadFile(scene.AssetPaths[asset_id].c_str(), aiProcessPreset_TargetRealtime_Quality);
-		std::cout << "Import [" << scene.AssetPaths[asset_id].c_str() << "] time:" << perf_detail.GetTimer() << "ns" << std::endl;
+		const aiScene* import = importer.ReadFile(scene->AssetPaths[asset_id].c_str(), aiProcessPreset_TargetRealtime_Quality);
+		std::cout << "Import [" << scene->AssetPaths[asset_id].c_str() << "] time:" << perf_detail.GetTimer() << "ns" << std::endl;
 
 		// Check if success with import
 		if (!import)
@@ -48,7 +48,7 @@ void AEEngine::ConstructData(AEScene& scene)
 		//Check if asset have any meshes
 		if (!import->HasMeshes())
 		{
-			std::cout << "No meshes imported from file: " << scene.AssetPaths[asset_id] << std::endl;
+			std::cout << "No meshes imported from file: " << scene->AssetPaths[asset_id] << std::endl;
 			continue;
 		}
 
@@ -115,7 +115,7 @@ void AEEngine::ConstructData(AEScene& scene)
 					import_data.IndicesData.push_back(import->mMeshes[i]->mFaces[face_id].mIndices[2]);
 				}
 
-				scene.Meshes[i].SetBoundBox(minmax);
+				scene->Meshes[i].SetBoundBox(minmax);
 			}
 		}
 
@@ -143,22 +143,22 @@ void AEEngine::ConstructData(AEScene& scene)
 
 	// Get all vertex data from engine objects
 	perf.StartTimer();
-	if (scene.Primitives.size() != 0)
+	if (scene->Primitives.size() != 0)
 	{
 		AddToDrawCommand(scene, this_vertex_count, this_indices_count);
 
-		for (uint32_t object_id(0); object_id < scene.Primitives.size(); object_id++)
+		for (uint32_t object_id(0); object_id < scene->Primitives.size(); object_id++)
 		{
 			AEImportDataSlice import_data;
 			AEVertexArrayPackeg raw_data;
 
-			for (uint32_t vert_id(0); vert_id < scene.Primitives[object_id].GetVertexCount(); vert_id++)
+			for (uint32_t vert_id(0); vert_id < scene->Primitives[object_id].GetVertexCount(); vert_id++)
 			{
 				// Position: vec3
 				raw_data.position = aiVector3D(
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id],
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 1],
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 2]);
+					scene->Primitives[object_id].GetVertexes()[5 * vert_id],
+					scene->Primitives[object_id].GetVertexes()[5 * vert_id + 1],
+					scene->Primitives[object_id].GetVertexes()[5 * vert_id + 2]);
 
 				// Vertex Color: vec4
 				raw_data.color = aiColor4D(0);
@@ -168,8 +168,8 @@ void AEEngine::ConstructData(AEScene& scene)
 
 				// Texture Coordinate: vec3
 				raw_data.texCoord = aiVector3D(
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 3],
-					scene.Primitives[object_id].GetVertexes()[5 * vert_id + 4],
+					scene->Primitives[object_id].GetVertexes()[5 * vert_id + 3],
+					scene->Primitives[object_id].GetVertexes()[5 * vert_id + 4],
 					0.0f);
 
 				// Push data to container
@@ -177,9 +177,9 @@ void AEEngine::ConstructData(AEScene& scene)
 			}
 
 			// Pack indices geometry data
-			for (uint32_t ind_id(0); ind_id < scene.Primitives[object_id].GetIndicesCount(); ind_id++)
+			for (uint32_t ind_id(0); ind_id < scene->Primitives[object_id].GetIndicesCount(); ind_id++)
 			{
-				import_data.IndicesData.push_back(scene.Primitives[object_id].GetIndices()[ind_id]);
+				import_data.IndicesData.push_back(scene->Primitives[object_id].GetIndices()[ind_id]);
 			}
 
 			importedData.push_back(import_data);
@@ -190,7 +190,7 @@ void AEEngine::ConstructData(AEScene& scene)
 	perf.StartTimer();
 	{
 		for (uint32_t i(0); i < DrawList.ObjectList.size(); i++)
-			DrawList.ObjectList[i].BBox = scene.Meshes[i].GetBoundBox();
+			DrawList.ObjectList[i].BBox = scene->Meshes[i].GetBoundBox();
 	}
 	std::cout << "BBox data copy time: " << perf.GetTimer() << "ns" << std::endl;
 
@@ -219,7 +219,7 @@ void AEEngine::ConstructData(AEScene& scene)
 	Objects_SSBO.CreateBuffer(eAE_ShaderBufferType_SSBO, SSBO_MODEL_MATRIX_LOCATION, DrawList.ObjectList.size() * sizeof(AEObjectData), "Object Data SSBO");
 }
 
-void AEEngine::AddToDrawCommand(AEScene& eng_scene, const aiScene* imp_scene, uint32_t& vert_count, uint32_t& ind_count)
+void AEEngine::AddToDrawCommand(AEScene* eng_scene, const aiScene* imp_scene, uint32_t& vert_count, uint32_t& ind_count)
 {
 	for (uint32_t i(0); i < imp_scene->mNumMeshes; i++)
 	{
@@ -229,24 +229,24 @@ void AEEngine::AddToDrawCommand(AEScene& eng_scene, const aiScene* imp_scene, ui
 		mesh_engine_data.VertexCount = imp_scene->mMeshes[i]->mNumVertices;
 
 		MakeDrawCommand(mesh_engine_data, vert_count, ind_count);
-		eng_scene.Add(mesh_engine_data);
+		eng_scene->Add(mesh_engine_data);
 	}
 }
 
-void AEEngine::AddToDrawCommand(AEScene& eng_scene, uint32_t& vert_count, uint32_t& ind_count)
+void AEEngine::AddToDrawCommand(AEScene* eng_scene, uint32_t& vert_count, uint32_t& ind_count)
 {
-	for (uint32_t object_id(0); object_id < eng_scene.Primitives.size(); object_id++)
+	for (uint32_t object_id(0); object_id < eng_scene->Primitives.size(); object_id++)
 	{
 		vert_count = 0;
 		ind_count = 0;
 
 		AEMesh mesh_engine_data;
 		mesh_engine_data.SetName("Primitive");
-		mesh_engine_data.ElementCount = eng_scene.Primitives[object_id].GetIndicesCount();
-		mesh_engine_data.VertexCount = eng_scene.Primitives[object_id].GetVertexCount();
+		mesh_engine_data.ElementCount = eng_scene->Primitives[object_id].GetIndicesCount();
+		mesh_engine_data.VertexCount = eng_scene->Primitives[object_id].GetVertexCount();
 
 		MakeDrawCommand(mesh_engine_data, vert_count, ind_count);
-		eng_scene.Add(mesh_engine_data);
+		eng_scene->Add(mesh_engine_data);
 	}
 }
 

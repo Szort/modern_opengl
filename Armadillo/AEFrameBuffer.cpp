@@ -1,24 +1,24 @@
 #include "AECore.h"
 #include "AEFrameBuffer.h"
 
-void AEFrameBuffer::CreateFrameBuffer(AEViewport& viewport)
+void AEFrameBuffer::CreateFrameBuffer(AEViewport* viewport)
 {
 	glCreateFramebuffers(1, &framebuffer);
 	glCreateTextures(GL_TEXTURE_2D, eAE_GBuffer_Count, &textures[0]);
 	
-	glTextureStorage2D(textures[eAE_GBuffer_WorldPosition], 1, GL_RGB16F, viewport.GetSize()->x, viewport.GetSize()->y);
+	glTextureStorage2D(textures[eAE_GBuffer_WorldPosition], 1, GL_RGB16F, viewport->GetSize()->x, viewport->GetSize()->y);
 	glTextureParameteri(textures[eAE_GBuffer_WorldPosition], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(textures[eAE_GBuffer_WorldPosition], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(textures[eAE_GBuffer_Albedo], 1, GL_RGB8, viewport.GetSize()->x, viewport.GetSize()->y);
+	glTextureStorage2D(textures[eAE_GBuffer_Albedo], 1, GL_RGB8, viewport->GetSize()->x, viewport->GetSize()->y);
 	glTextureParameteri(textures[eAE_GBuffer_Albedo], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(textures[eAE_GBuffer_Albedo], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(textures[eAE_GBuffer_Normal], 1, GL_RGB16F, viewport.GetSize()->x, viewport.GetSize()->y);
+	glTextureStorage2D(textures[eAE_GBuffer_Normal], 1, GL_RGB16F, viewport->GetSize()->x, viewport->GetSize()->y);
 	glTextureParameteri(textures[eAE_GBuffer_Normal], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(textures[eAE_GBuffer_Normal], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(textures[eAE_GBuffer_Depth], 1, GL_DEPTH_COMPONENT24, viewport.GetSize()->x, viewport.GetSize()->y);
+	glTextureStorage2D(textures[eAE_GBuffer_Depth], 1, GL_DEPTH_COMPONENT24, viewport->GetSize()->x, viewport->GetSize()->y);
 	glTextureParameteri(textures[eAE_GBuffer_Depth], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(textures[eAE_GBuffer_Depth], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

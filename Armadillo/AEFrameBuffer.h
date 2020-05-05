@@ -24,7 +24,7 @@ class AEFrameBuffer
 
 public:
 
-	void CreateFrameBuffer(AEViewport& viewport);
+	void CreateFrameBuffer(AEViewport* viewport);
 	void BindForDraw();
 	void Bind();
 	void Unbind();

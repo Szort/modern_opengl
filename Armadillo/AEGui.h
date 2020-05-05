@@ -27,6 +27,6 @@ public:
 	~AEGui() {};
 
 	void Initiate(GLFWwindow* window);
-	void Draw(AEViewport& viewport, AEEngine& engine);
+	void Draw(AEViewport* viewport, AEEngine* engine);
 	void Destroy();
 };

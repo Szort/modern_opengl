@@ -21,7 +21,7 @@ void AEGui::Initiate(GLFWwindow* window)
 	ImGui_ImplOpenGL3_Init("#version 450");
 }
 
-void AEGui::Draw(AEViewport& viewport, AEEngine& engine)
+void AEGui::Draw(AEViewport* viewport, AEEngine* engine)
 {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
@@ -31,15 +31,15 @@ void AEGui::Draw(AEViewport& viewport, AEEngine& engine)
 	{
 		ImGui::Begin("Hello, world!");
 		
-		ImGui::SliderFloat("float", &engine.FpsCap, 1.0f, 120.0f);    // Edit 1 float using a slider from 0.0f to 1.0f
+		ImGui::SliderFloat("float", &engine->FpsCap, 1.0f, 120.0f);    // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
 			1000.0f / ImGui::GetIO().Framerate, 
 			ImGui::GetIO().Framerate);
 		
-		ImGui::InputInt("Base:", &engine.SelectedID);
-		ImGui::Checkbox("Debug Bounding Boxes", &engine.DebugBBox);
+		ImGui::InputInt("Base:", &engine->SelectedID);
+		ImGui::Checkbox("Debug Bounding Boxes", &engine->DebugBBox);
 
 		ImGui::End();
 	}

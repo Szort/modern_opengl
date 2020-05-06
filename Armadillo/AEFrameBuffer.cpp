@@ -46,6 +46,14 @@ void AEFrameBuffer::BindForDraw()
 	glNamedFramebufferDrawBuffers(framebuffer, 3, GBufferDrawAttachemnts);
 }
 
+void AEFrameBuffer::BindTextures()
+{
+	glBindTextureUnit(0, textures[eAE_GBuffer_WorldPosition]);
+	glBindTextureUnit(1, textures[eAE_GBuffer_Albedo]);
+	glBindTextureUnit(2, textures[eAE_GBuffer_Normal]);
+	glBindTextureUnit(3, textures[eAE_GBuffer_Depth]);
+}
+
 void AEFrameBuffer::Bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);

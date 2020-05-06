@@ -26,6 +26,7 @@ public:
 
 	void CreateFrameBuffer(AEViewport* viewport);
 	void BindForDraw();
+	void BindTextures();
 	void Bind();
 	void Unbind();
 

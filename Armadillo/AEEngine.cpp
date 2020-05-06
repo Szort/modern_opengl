@@ -375,7 +375,7 @@ void AEEngine::Idle()
 
 void AEEngine::DrawGeometry()
 {
-	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)DrawList.CommandList.size() - 1, 0);
+	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, (uint32_t)DrawList.CommandList.size(), 0);
 }
 
 void AEEngine::DrawBoundingBox()

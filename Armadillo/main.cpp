@@ -46,7 +46,7 @@ int main()
 	AECamera* Camera = new AECamera();
 	AEGui* GUI = new AEGui();
 
-	AEPrimitive		Plane(eAE_PrimitiveType_Plane);
+	AEPrimitive* Plane = new AEPrimitive(eAE_PrimitiveType_Plane);
 
 	// Startup light setup
 	AELight			PointLight01(eAE_LightType_Point);
@@ -57,7 +57,6 @@ int main()
 	Viewport->SetCurrentCamera(Camera);
 
 	// Import assets
-	Scene->Add(Plane);
 	Scene->Add(PointLight01);
 	Scene->ImportAsset("./resources/meshes/Sponza/Sponza.gltf");
 	//Scene.ImportAsset("./resources/meshes/BoxVertexColors.gltf");
@@ -89,7 +88,7 @@ int main()
 	// uint64_t are not present in GLSL shaders on Intel.
 	// If we want a minimum CPU overhead we can pass all textures we have in one command,
 	// but we need to pass existing resources.
-	glBindTextures(0, eAE_GBuffer_Count, FrameImage->GetTexture());
+	//glBindTextures(0, eAE_GBuffer_Count, FrameImage->GetTexture());
 
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(Viewport->GetWindow()))
@@ -128,8 +127,14 @@ int main()
 
 		// Draw full screen quad with GBuffer textures
 		FrameImage->Unbind();
+
+		// Unbind resources when finished to mantain order
+		//-------------------------------------------------------------------
+		Engine->UnbindVAO();
+
+		FrameImage->BindTextures();
 		Shader_Show.Bind();
-		Engine->DrawQuad();
+		Plane->RenderShape();
 
 		// Debug section
 		//-------------------------------------------------------------------
@@ -139,8 +144,10 @@ int main()
 			glDisable(GL_DEPTH_TEST);
 
 			// Draw debug BBx data
+			Engine->BindVAO();
 			Shader_BBox.Bind();
 			Engine->DrawBoundingBox();
+			Engine->UnbindVAO();
 
 			if (false)
 			{
@@ -150,10 +157,6 @@ int main()
 				Engine->DrawSelected();
 			}
 		}
-
-		// Unbind resources when finished to mantain order
-		//-------------------------------------------------------------------
-		Engine->UnbindVAO();
 
 		// GUI draw section
 		//-------------------------------------------------------------------
